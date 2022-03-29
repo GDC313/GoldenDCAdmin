@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "27904910068",
+    "project_id": "goldendc-fdb99",
+    "storage_bucket": "goldendc-fdb99.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:27904910068:android:ba06f8fe9655ca303534a1",
+        "android_client_info": {
+          "package_name": "com.goldendc"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "27904910068-ie1tdauta7a8cvv1le2darf07fkid5e1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.goldendc",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "27904910068-41o8i2fvovvs8ogkmpth7ipdsc0a0frr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAF7oTEGPW4axuep6_rzxJQCzIdBiJR8-c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "27904910068-41o8i2fvovvs8ogkmpth7ipdsc0a0frr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
