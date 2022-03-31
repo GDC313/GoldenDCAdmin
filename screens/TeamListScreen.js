@@ -12,6 +12,7 @@ class TeamListScreen extends Component {
         super(props);
         this.state = {
             teamName: this.props.route.params.teamName,
+            teamId: this.props.route.params.teamId,
             city: this.props.route.params.city,
             playerName: this.props.route.params.playerName,
             phoneNumber: this.props.route.params.phoneNumber,
@@ -192,6 +193,7 @@ class TeamListScreen extends Component {
                             // this.props.navigation.navigate("StartMatchScreen1");
                             this.props.navigation.navigate("AddPlayerScreen",{
                                 teamName : this.state.teamName,
+                                teamId : this.state.teamId,
                                 city : this.state.city
                             });
                         }}>

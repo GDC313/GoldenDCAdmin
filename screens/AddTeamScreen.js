@@ -169,14 +169,19 @@ class AddTeamScreen extends Component {
 
     callAPI(teamName, city, filePath){
         console.log("filePath: ",filePath)
-        var photo = {
-            uri: filePath,
-            type: 'image/jpeg',
-            name: 'photo.jpg',
-        };
+        let photo = "";
+        if (filePath !== "") {
+            photo = {
+                uri: filePath,
+                type: 'image/jpeg',
+                name: 'photo.jpg',
+            };
+        }
 
-        var form = new FormData();
-        form.append("logo", photo);
+        let form = new FormData();
+        if(photo !== ""){
+            form.append("logo", photo);
+        }
         form.append('name',teamName);
         form.append('city',city);
 
