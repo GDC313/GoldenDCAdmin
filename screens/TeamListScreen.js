@@ -1,5 +1,15 @@
 import React, {Component} from 'react';
-import {Alert, FlatList, Image, SafeAreaView, StatusBar, Text, TouchableOpacity, View} from "react-native";
+import {
+    ActivityIndicator,
+    Alert,
+    FlatList,
+    Image,
+    SafeAreaView,
+    StatusBar,
+    Text,
+    TouchableOpacity,
+    View
+} from "react-native";
 
 import {Divider} from "react-native-elements";
 import colors from "../styles/colors";
@@ -18,6 +28,8 @@ class TeamListScreen extends Component {
             phoneNumber: this.props.route.params.phoneNumber,
             filePath: this.props.route.params.filePath,
             isNewAddPlayer: this.props.route.params.isNewAddPlayer,
+            isLoading: true,
+            playerList: [],
             data: [
                 {
                     playerName: "Madhevere",
@@ -114,12 +126,60 @@ class TeamListScreen extends Component {
     }
 
     componentDidMount(): void {
+        this.getPlayerList()
         if (this.state.isNewAddPlayer) {
             let newPlayer = {
                 playerName: this.state.playerName,
                 isSelected: false
             }
         }
+    }
+
+    getPlayerList() {
+        let requestOptions = {
+            method: 'GET',
+            redirect: 'follow'
+        };
+
+        fetch("https://www.goldendc.demourl.ca/api/player_list/" + this.state.teamId, requestOptions)
+            .then(response => response.text())
+            .then(result => {
+                if (result !== undefined && result !== null) {
+                    console.log("result: ", result)
+                    let resultData = JSON.parse(result)
+                    if (resultData.data !== undefined &&
+                        resultData.data !== null &&
+                        resultData.data.length > 0) {
+                        console.log("resultData: ", resultData.data)
+
+                        let data = resultData.data.filter((item) =>
+                            item.name !== undefined &&
+                            item.name !== null &&
+                            item.name !== ""
+                        )
+                        this.setState({
+                            playerList: data,
+                            isLoading: false
+                        })
+                    } else {
+                        this.setState({
+                            playerList: [],
+                            isLoading: false
+                        })
+                    }
+                } else {
+                    this.setState({
+                        playerList: [],
+                        isLoading: false
+                    })
+                }
+            })
+            .catch(error => {
+                this.setState({
+                    teamList: [],
+                    isLoading: false
+                })
+            });
     }
 
     render() {
@@ -191,10 +251,10 @@ class TeamListScreen extends Component {
                         }}
                         onPress={() => {
                             // this.props.navigation.navigate("StartMatchScreen1");
-                            this.props.navigation.navigate("AddPlayerScreen",{
-                                teamName : this.state.teamName,
-                                teamId : this.state.teamId,
-                                city : this.state.city
+                            this.props.navigation.navigate("AddPlayerScreen", {
+                                teamName: this.state.teamName,
+                                teamId: this.state.teamId,
+                                city: this.state.city
                             });
                         }}>
                         <Text
@@ -206,24 +266,40 @@ class TeamListScreen extends Component {
                     </TouchableOpacity>
 
                 </View>
+                {(
+                    this.state.isLoading &&
+                    <ActivityIndicator
+                        size="large"
+                        color={colors.PRIMARY_COLOR}
+                        style={{
+                            alignSelf: 'center',
+                        }}
+                        animating={true}
+                    />
+                )}
+
                 <FlatList
                     contentContainerStyle={{
                         flexGrow: 1,
                         marginTop: 10,
                         paddingBottom: 10,
                     }}
-                    data={this.state.data}
+                    data={this.state.playerList}
                     renderItem={({item, index}) => (
                         <TouchableOpacity onPress={() => {
-                            let list = this.state.data
+                            let list = this.state.playerList
                             if (item.isSelected) {
                                 list[index].isSelected = !list[index].isSelected
-                                this.setState({data: list})
+                                list[index].isCaptain = false
+                                list[index].isWicketKeeper = false
+                                this.setState({playerList: list})
                             } else if (list.filter(item => item.isSelected).length >= 11) {
                                 Alert.alert("", "Select only 11 players")
                             } else {
                                 list[index].isSelected = !list[index].isSelected
-                                this.setState({data: list})
+                                list[index].isCaptain = false
+                                list[index].isWicketKeeper = false
+                                this.setState({playerList: list})
                             }
                         }}>
                             <View style={{
@@ -238,14 +314,32 @@ class TeamListScreen extends Component {
                                 backgroundColor: 'rgba(118,176,67,0.1)',
                                 borderColor: 'rgba(2,79,39,0.1)'
                             }}>
-                                <Image
-                                    resizeMode={'cover'}
-                                    style={{
-                                        width: 42,
-                                        height: 42,
-                                        alignSelf: 'center',
-                                        marginStart: 15
-                                    }} source={require('../assets/images/ic_top_logo.png')}/>
+                                {
+                                    item.profile_pic !== null && item.profile_pic !== "" ?
+                                        <Image
+                                            resizeMode={'cover'}
+                                            style={{
+                                                width: 42,
+                                                borderRadius: 21,
+                                                height: 42,
+                                                alignSelf: 'center',
+                                                marginStart: 15
+                                            }}
+                                            source={{uri: "https://www.goldendc.demourl.ca/public/uploaded/images/" + item.profile_pic}}
+                                        />
+                                        :
+                                        <Image
+                                            resizeMode={'cover'}
+                                            style={{
+                                                width: 42,
+                                                height: 42,
+                                                alignSelf: 'center',
+                                                marginStart: 15
+                                            }}
+                                            source={require('../assets/images/ic_top_logo.png')}
+                                        />
+
+                                }
 
                                 <Text
                                     style={{
@@ -255,7 +349,7 @@ class TeamListScreen extends Component {
                                         marginStart: 10,
                                         flex: 1,
                                         color: colors.STATUS_BAR_COLOR
-                                    }}>{item.playerName}</Text>
+                                    }}>{item.name}</Text>
                                 <Image
                                     resizeMode={'cover'}
                                     style={{
@@ -298,7 +392,7 @@ class TeamListScreen extends Component {
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => {
-                            let list = this.state.data.filter((item) => {
+                            let list = this.state.playerList.filter((item) => {
                                 return item.isSelected
                             })
                             if (list.length < 2) {
@@ -307,7 +401,7 @@ class TeamListScreen extends Component {
                             }
                             this.props.navigation.navigate("SelectCaptainWicketKeeperScreen", {
                                 teamName: this.state.teamName,
-                                data: list
+                                playerList: list
                             });
                         }}
                         style={{

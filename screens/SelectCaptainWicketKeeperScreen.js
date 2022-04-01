@@ -21,9 +21,13 @@ class SelectCaptainWicketKeeperScreen extends Component {
         super(props);
         this.state = {
             teamName: this.props.route.params.teamName,
-            data: this.props.route.params.data,
+            playerList: this.props.route.params.playerList,
             isCaptainShow: true
         }
+    }
+
+    componentDidMount() {
+        console.log("playerList: ", this.state.playerList.length)
     }
 
     render() {
@@ -129,22 +133,22 @@ class SelectCaptainWicketKeeperScreen extends Component {
                         marginTop: 10,
                         paddingBottom: 10,
                     }}
-                    data={this.state.data}
+                    data={this.state.playerList}
                     renderItem={({item, index}) => (
                         <TouchableOpacity onPress={() => {
-                            let list = this.state.data
+                            let list = this.state.playerList
                             if (this.state.isCaptainShow) {
                                 list.filter((item) => {
                                     item.isCaptain = false
                                 })
                                 list[index].isCaptain = !list[index].isCaptain
-                                this.setState({data: list})
+                                this.setState({playerList: list})
                             } else {
                                 list.filter((item) => {
                                     item.isWicketKeeper = false
                                 })
                                 list[index].isWicketKeeper = !list[index].isWicketKeeper
-                                this.setState({data: list})
+                                this.setState({playerList: list})
                             }
                         }}>
                             <View style={{
@@ -159,15 +163,33 @@ class SelectCaptainWicketKeeperScreen extends Component {
                                 backgroundColor: 'rgba(118,176,67,0.1)',
                                 borderColor: 'rgba(2,79,39,0.1)'
                             }}>
-                                <Image
-                                    resizeMode={'cover'}
-                                    style={{
-                                        width: 42,
-                                        height: 42,
-                                        alignSelf: 'center',
-                                        marginStart: 15
-                                    }} source={require('../assets/images/ic_top_logo.png')}/>
+                                {
+                                    item.profile_pic !== null && item.profile_pic !== "" ?
+                                        <Image
+                                            resizeMode={'cover'}
+                                            style={{
+                                                width: 42,
+                                                height: 42,
+                                                borderRadius: 21,
+                                                alignSelf: 'center',
+                                                marginStart: 15
+                                            }}
+                                            source={{uri: "https://www.goldendc.demourl.ca/public/uploaded/images/" + item.profile_pic}}
+                                        />
+                                        :
+                                        <Image
+                                            resizeMode={'cover'}
+                                            style={{
+                                                width: 42,
+                                                height: 42,
+                                                borderRadius: 21,
+                                                alignSelf: 'center',
+                                                marginStart: 15
+                                            }}
+                                            source={require('../assets/images/ic_top_logo.png')}
+                                        />
 
+                                }
                                 <Text
                                     style={{
                                         fontFamily: fontStyle.MontserratBold,
@@ -176,7 +198,7 @@ class SelectCaptainWicketKeeperScreen extends Component {
                                         marginStart: 10,
                                         flex: 1,
                                         color: colors.STATUS_BAR_COLOR
-                                    }}>{item.playerName}</Text>
+                                    }}>{item.name}</Text>
                                 <Image
                                     resizeMode={'cover'}
                                     style={{
@@ -199,16 +221,16 @@ class SelectCaptainWicketKeeperScreen extends Component {
                 }}>
                     <TouchableOpacity
                         onPress={() => {
-                            if (this.state.data.filter(item => item.isCaptain) <= 0) {
+                            if (this.state.playerList.filter(item => item.isCaptain) <= 0) {
                                 Alert.alert("", "Please select at least one Captain")
                                 return
                             }
-                            if (this.state.data.filter(item => item.isWicketKeeper) <= 0) {
+                            if (this.state.playerList.filter(item => item.isWicketKeeper) <= 0) {
                                 Alert.alert("", "Please select at least one Wicket Keeper")
                                 return
                             }
                             let jsonData = {
-                                teamSquad : this.state.data,
+                                teamSquad: this.state.playerList,
                                 teamName: this.state.teamName
                             }
                             // to set
