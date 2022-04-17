@@ -49,6 +49,7 @@ class MyTeams extends Component {
     }
 
     componentDidMount() {
+        this.props.navigation.addListener('focus', () => this.getTeamList())
         this.getTeamList()
     }
 
@@ -171,103 +172,124 @@ class MyTeams extends Component {
                         size="large"
                         color={colors.PRIMARY_COLOR}
                         style={{
+                            flex: 1,
                             alignSelf: 'center',
                         }}
                         animating={true}
                     />
                 )}
+                {(
+                    !this.state.isLoading && this.state.teamList.length <= 0 &&
+                    <View style={{
+                        alignSelf: 'center',
+                        flex: 1,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}>
+                        <Text
+                            style={{
+                                fontFamily: fontStyle.MontserratMedium,
+                                fontSize: 20,
+                                color: colors.STATUS_BAR_COLOR
+                            }}>{Constants.NO_TEAM}</Text>
+                    </View>
 
-                <FlatList
-                    contentContainerStyle={{
-                        flexGrow: 1,
-                        marginTop: 10,
-                        paddingBottom: 10
-                    }}
-                    data={this.state.teamList}
-                    renderItem={({item}) => (
-                        <TouchableOpacity onPress={() => {
-                            this.props.navigation.navigate("TeamListScreen", {
-                                teamId: item.id,
-                                teamName: item.name,
-                                city: item.city,
-                                isNewAddPlayer: false
-                            });
-                        }}>
-                            <View style={{
-                                flexDirection: 'column',
-                                paddingBottom: 10,
-                                paddingTop: 10,
-                                marginStart: 20,
-                                marginEnd: 20,
-                                borderRadius: 8,
-                                marginBottom: 10,
-                                borderWidth: 1,
-                                borderColor: 'rgba(2,79,39,0.1)'
+                )}
+                {(
+                    !this.state.isLoading && this.state.teamList.length > 0 &&
+                    <FlatList
+                        contentContainerStyle={{
+                            flexGrow: 1,
+                            marginTop: 10,
+                            paddingBottom: 10
+                        }}
+                        data={this.state.teamList}
+                        renderItem={({item}) => (
+                            <TouchableOpacity onPress={() => {
+                                this.props.navigation.navigate("TeamListScreen", {
+                                    teamId: item.id,
+                                    teamName: item.name,
+                                    city: item.city,
+                                    isNewAddPlayer: false
+                                });
                             }}>
-                                <View
-                                    style={{
-                                        paddingStart: 15,
-                                        flexDirection: 'row'
-                                    }}>
-                                    {
-                                        item.logo !== null && item.logo !== "" ?
-                                            <Image
-                                                resizeMode={'cover'}
-                                                style={{
-                                                    width: 50,
-                                                    height: 50,
-                                                    borderRadius: 25,
-                                                    marginEnd: 10
-                                                }}
-                                                source={{uri: "https://www.goldendc.demourl.ca/public/uploaded/images/" + item.logo}}/>
-                                            :
-                                            <Image
-                                                resizeMode={'cover'}
-                                                style={{
-                                                    width: 50,
-                                                    height: 50,
-                                                    borderRadius: 25,
-                                                    marginEnd: 10
-                                                }}
-                                                source={require('../assets/images/ic_top_logo.png')}/>
-                                    }
-
-                                    <View>
-                                        <Text
-                                            style={{
-                                                fontFamily: fontStyle.MontserratBold,
-                                                fontSize: 16,
-                                                color: colors.BLACK
-                                            }}>{
-                                            item.name
-                                        }</Text>
-                                        <View style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            marginTop: 5
+                                <View style={{
+                                    flexDirection: 'column',
+                                    paddingBottom: 10,
+                                    paddingTop: 10,
+                                    marginStart: 20,
+                                    marginEnd: 20,
+                                    borderRadius: 8,
+                                    marginBottom: 10,
+                                    borderWidth: 1,
+                                    borderColor: 'rgba(2,79,39,0.1)'
+                                }}>
+                                    <View
+                                        style={{
+                                            paddingStart: 15,
+                                            flexDirection: 'row'
                                         }}>
+                                        {
+                                            item.logo !== null && item.logo !== "" ?
+                                                <Image
+                                                    resizeMode={'cover'}
+                                                    style={{
+                                                        width: 50,
+                                                        height: 50,
+                                                        borderRadius: 25,
+                                                        marginEnd: 10
+                                                    }}
+                                                    source={{uri: "https://www.goldendc.demourl.ca/public/uploaded/images/" + item.logo}}/>
+                                                :
+                                                <Image
+                                                    resizeMode={'cover'}
+                                                    style={{
+                                                        width: 50,
+                                                        height: 50,
+                                                        borderRadius: 25,
+                                                        marginEnd: 10
+                                                    }}
+                                                    source={require('../assets/images/ic_top_logo.png')}/>
+                                        }
+
+                                        <View>
                                             <Text
                                                 style={{
                                                     fontFamily: fontStyle.MontserratBold,
                                                     fontSize: 16,
                                                     color: colors.BLACK
                                                 }}>{
-                                                "City: "
+                                                item.name
                                             }</Text>
-                                            <Text
-                                                style={{
-                                                    fontFamily: fontStyle.MontserratRegular,
-                                                    fontSize: 16,
-                                                    color: colors.BLACK
-                                                }}>{
-                                                item.city
-                                            }</Text>
+                                            <View style={{
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                                marginTop: 5
+                                            }}>
+                                                <Text
+                                                    style={{
+                                                        fontFamily: fontStyle.MontserratBold,
+                                                        fontSize: 16,
+                                                        color: colors.BLACK
+                                                    }}>{
+                                                    "City: "
+                                                }</Text>
+                                                <Text
+                                                    style={{
+                                                        fontFamily: fontStyle.MontserratRegular,
+                                                        fontSize: 16,
+                                                        color: colors.BLACK
+                                                    }}>{
+                                                    item.city
+                                                }</Text>
+                                            </View>
                                         </View>
                                     </View>
                                 </View>
-                            </View>
-                        </TouchableOpacity>
-                    )}/>
+                            </TouchableOpacity>
+                        )}/>
+                )}
+
             </View>
         );
     }

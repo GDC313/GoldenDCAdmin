@@ -55,4 +55,6 @@ export default {
   OK:"Ok",
   CANCEL:"Cancel",
   LIVE_MATCH:"Live Match",
+  NO_TEAM:"No teams found",
+  NO_PLAYER:"No player found",
 }

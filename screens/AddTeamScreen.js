@@ -199,6 +199,7 @@ class AddTeamScreen extends Component {
                 console.log("ERROR " , error)
             })
             .then((responseData) => {
+                this.props.navigation.goBack()
                 console.log("Succes ", JSON.stringify(responseData))
             }).done();
     }

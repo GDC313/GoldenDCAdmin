@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {
+    ActivityIndicator,
     Alert,
     FlatList,
     Image,
@@ -18,6 +19,8 @@ import fontStyle from "../styles/fontStyle";
 import Constants from "../styles/Constants";
 import {launchCamera, launchImageLibrary} from "react-native-image-picker";
 
+let flagAddPlayer = false
+
 class AddPlayerScreen extends Component {
     constructor(props) {
         super(props);
@@ -27,8 +30,14 @@ class AddPlayerScreen extends Component {
             city: this.props.route.params.city,
             playerName: '',
             phoneNumber: '',
-            filePath: ''
+            filePath: '',
+            isLoading: false
         }
+        flagAddPlayer = false
+    }
+
+    componentDidMount() {
+        flagAddPlayer = false
     }
 
     handlePlayerName = (text) => {
@@ -168,7 +177,7 @@ class AddPlayerScreen extends Component {
         let form = new FormData();
         form.append('name', name);
         form.append('number', number);
-        if(photo !== ""){
+        if (photo !== "") {
             form.append("profile_pic", photo);
         }
         form.append('team_id', team_id);
@@ -184,10 +193,17 @@ class AddPlayerScreen extends Component {
             }
         ).then((response) => response.json())
             .catch((error) => {
+                flagAddPlayer = false
+                this.setState({
+                    isLoading: false,
+                })
                 console.log("ERROR ", error)
             })
             .then((responseData) => {
                 console.log("Succes ", JSON.stringify(responseData))
+                // this.setState({
+                //     isLoading: false,
+                // })
                 if (responseData !== undefined) {
                     this.props.navigation.goBack()
                 }
@@ -237,7 +253,9 @@ class AddPlayerScreen extends Component {
                             color: colors.WHITE
                         }}>{Constants.ADD_PLAYER + " to " + this.state.teamName}</Text>
                 </View>
+
                 <ScrollView>
+
                     <View style={{
                         flex: 1,
                     }}>
@@ -331,6 +349,9 @@ class AddPlayerScreen extends Component {
 
                 <TouchableOpacity
                     onPress={() => {
+                        if (flagAddPlayer) {
+                            return;
+                        }
                         let playerName = this.state.playerName
                         let phoneNumber = this.state.phoneNumber
                         if (playerName.trim() === "") {
@@ -341,7 +362,10 @@ class AddPlayerScreen extends Component {
                             Alert.alert("", "Please enter Phone number")
                             return;
                         }
-
+                        flagAddPlayer = true
+                        this.setState({
+                            isLoading: true,
+                        })
                         this.callAPIForPlayerAdd(playerName, phoneNumber, this.state.teamId, this.state.filePath)
 
                         // this.props.navigation.navigate("TeamListScreen",{
@@ -357,23 +381,40 @@ class AddPlayerScreen extends Component {
                         width: "90%",
                         alignSelf: 'center',
                     }}>
-                    <Text
-                        style={{
-                            fontFamily: fontStyle.MontserratBold,
-                            fontSize: 12,
-                            paddingTop: 16,
-                            alignSelf: 'center',
-                            width: "100%",
-                            paddingBottom: 16,
-                            textAlign: 'center',
-                            paddingStart: 20,
-                            paddingEnd: 20,
-                            borderRadius: 6,
-                            backgroundColor: colors.STATUS_BAR_COLOR,
-                            color: colors.WHITE
-                        }}>{
-                        Constants.ADD_PLAYER
-                    }</Text>
+                    <View style={{
+                        paddingTop: 16,
+                        paddingBottom: 16,
+                        paddingStart: 20,
+                        paddingEnd: 20,
+                        borderRadius: 6,
+                        backgroundColor: colors.STATUS_BAR_COLOR,
+
+                    }}>
+                        {(
+                            this.state.isLoading &&
+                            <ActivityIndicator
+                                size="large"
+                                color={colors.PRIMARY_COLOR}
+                                style={{
+                                    flex: 1,
+                                    alignSelf: 'center',
+                                }}
+                                animating={true}
+                            />
+                        )}
+                        <Text
+                            style={{
+                                fontFamily: fontStyle.MontserratBold,
+                                fontSize: 12,
+                                alignSelf: 'center',
+                                width: "100%",
+                                textAlign: 'center',
+                                color: !this.state.isLoading ? colors.WHITE : colors.GRAY_COLOR
+                            }}>{
+                            Constants.ADD_PLAYER
+                        }</Text>
+                    </View>
+
                 </TouchableOpacity>
             </View>
         );

@@ -126,6 +126,7 @@ class TeamListScreen extends Component {
     }
 
     componentDidMount(): void {
+        this.props.navigation.addListener('focus', () => this.getPlayerList())
         this.getPlayerList()
         if (this.state.isNewAddPlayer) {
             let newPlayer = {
@@ -272,159 +273,187 @@ class TeamListScreen extends Component {
                         size="large"
                         color={colors.PRIMARY_COLOR}
                         style={{
+                            flex: 1,
                             alignSelf: 'center',
                         }}
                         animating={true}
                     />
                 )}
 
-                <FlatList
-                    contentContainerStyle={{
-                        flexGrow: 1,
-                        marginTop: 10,
-                        paddingBottom: 10,
-                    }}
-                    data={this.state.playerList}
-                    renderItem={({item, index}) => (
-                        <TouchableOpacity onPress={() => {
-                            let list = this.state.playerList
-                            if (item.isSelected) {
-                                list[index].isSelected = !list[index].isSelected
-                                list[index].isCaptain = false
-                                list[index].isWicketKeeper = false
-                                this.setState({playerList: list})
-                            } else if (list.filter(item => item.isSelected).length >= 11) {
-                                Alert.alert("", "Select only 11 players")
-                            } else {
-                                list[index].isSelected = !list[index].isSelected
-                                list[index].isCaptain = false
-                                list[index].isWicketKeeper = false
-                                this.setState({playerList: list})
-                            }
-                        }}>
-                            <View style={{
-                                flexDirection: 'row',
-                                paddingBottom: 14,
-                                paddingTop: 14,
-                                marginStart: 20,
-                                marginEnd: 20,
-                                borderRadius: 8,
-                                marginBottom: 12,
-                                borderWidth: 1,
-                                backgroundColor: 'rgba(118,176,67,0.1)',
-                                borderColor: 'rgba(2,79,39,0.1)'
-                            }}>
-                                {
-                                    item.profile_pic !== null && item.profile_pic !== "" ?
-                                        <Image
-                                            resizeMode={'cover'}
-                                            style={{
-                                                width: 42,
-                                                borderRadius: 21,
-                                                height: 42,
-                                                alignSelf: 'center',
-                                                marginStart: 15
-                                            }}
-                                            source={{uri: "https://www.goldendc.demourl.ca/public/uploaded/images/" + item.profile_pic}}
-                                        />
-                                        :
-                                        <Image
-                                            resizeMode={'cover'}
-                                            style={{
-                                                width: 42,
-                                                height: 42,
-                                                alignSelf: 'center',
-                                                marginStart: 15
-                                            }}
-                                            source={require('../assets/images/ic_top_logo.png')}
-                                        />
-
-                                }
-
-                                <Text
-                                    style={{
-                                        fontFamily: fontStyle.MontserratBold,
-                                        fontSize: 12,
-                                        alignSelf: 'center',
-                                        marginStart: 10,
-                                        flex: 1,
-                                        color: colors.STATUS_BAR_COLOR
-                                    }}>{item.name}</Text>
-                                <Image
-                                    resizeMode={'cover'}
-                                    style={{
-                                        width: 20,
-                                        height: 20,
-                                        alignSelf: 'center',
-                                        marginEnd: 15
-                                    }} source={item.isSelected ? require('../assets/images/ic_tick.png') :
-                                    require('../assets/images/ic_untick.png')}/>
-                            </View>
-                        </TouchableOpacity>
-                    )}/>
-                <View style={{
-                    flexDirection: 'row',
-                    marginStart: 20,
-                    marginEnd: 20,
-                    marginBottom: 8,
-                }}>
-                    <TouchableOpacity style={{
+                {(
+                    !this.state.isLoading && this.state.playerList.length <= 0 &&
+                    <View style={{
+                        alignSelf: 'center',
                         flex: 1,
+                        alignItems: 'center',
+                        justifyContent: 'center',
                     }}>
                         <Text
                             style={{
-                                width: '95%',
-                                fontFamily: fontStyle.MontserratBold,
-                                fontSize: 12,
-                                marginEnd: 10,
-                                paddingTop: 16,
-                                alignSelf: 'center',
-                                paddingBottom: 16,
-                                textAlign: 'center',
-                                paddingStart: 20,
-                                paddingEnd: 20,
-                                borderRadius: 6,
-                                backgroundColor: colors.PRIMARY_COLOR,
-                                color: colors.WHITE
-                            }}>{
-                            Constants.NOT_NOW
-                        }</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => {
-                            let list = this.state.playerList.filter((item) => {
-                                return item.isSelected
-                            })
-                            if (list.length < 2) {
-                                Alert.alert("", "Please select at least two players")
-                                return
-                            }
-                            this.props.navigation.navigate("SelectCaptainWicketKeeperScreen", {
-                                teamName: this.state.teamName,
-                                playerList: list
-                            });
+                                fontFamily: fontStyle.MontserratMedium,
+                                fontSize: 20,
+                                color: colors.STATUS_BAR_COLOR
+                            }}>{Constants.NO_PLAYER}</Text>
+                    </View>
+
+                )}
+
+                {(
+                    !this.state.isLoading && this.state.playerList.length > 0 &&
+                    <FlatList
+                        contentContainerStyle={{
+                            flexGrow: 1,
+                            marginTop: 10,
+                            paddingBottom: 10,
                         }}
-                        style={{
+                        data={this.state.playerList}
+                        renderItem={({item, index}) => (
+                            <TouchableOpacity onPress={() => {
+                                let list = this.state.playerList
+                                if (item.isSelected) {
+                                    list[index].isSelected = !list[index].isSelected
+                                    list[index].isCaptain = false
+                                    list[index].isWicketKeeper = false
+                                    this.setState({playerList: list})
+                                } else if (list.filter(item => item.isSelected).length >= 11) {
+                                    Alert.alert("", "Select only 11 players")
+                                } else {
+                                    list[index].isSelected = !list[index].isSelected
+                                    list[index].isCaptain = false
+                                    list[index].isWicketKeeper = false
+                                    this.setState({playerList: list})
+                                }
+                            }}>
+                                <View style={{
+                                    flexDirection: 'row',
+                                    paddingBottom: 14,
+                                    paddingTop: 14,
+                                    marginStart: 20,
+                                    marginEnd: 20,
+                                    borderRadius: 8,
+                                    marginBottom: 12,
+                                    borderWidth: 1,
+                                    backgroundColor: 'rgba(118,176,67,0.1)',
+                                    borderColor: 'rgba(2,79,39,0.1)'
+                                }}>
+                                    {
+                                        item.profile_pic !== null && item.profile_pic !== "" ?
+                                            <Image
+                                                resizeMode={'cover'}
+                                                style={{
+                                                    width: 42,
+                                                    borderRadius: 21,
+                                                    height: 42,
+                                                    alignSelf: 'center',
+                                                    marginStart: 15
+                                                }}
+                                                source={{uri: "https://www.goldendc.demourl.ca/public/uploaded/images/" + item.profile_pic}}
+                                            />
+                                            :
+                                            <Image
+                                                resizeMode={'cover'}
+                                                style={{
+                                                    width: 42,
+                                                    height: 42,
+                                                    alignSelf: 'center',
+                                                    marginStart: 15
+                                                }}
+                                                source={require('../assets/images/ic_top_logo.png')}
+                                            />
+
+                                    }
+
+                                    <Text
+                                        style={{
+                                            fontFamily: fontStyle.MontserratBold,
+                                            fontSize: 12,
+                                            alignSelf: 'center',
+                                            marginStart: 10,
+                                            flex: 1,
+                                            color: colors.STATUS_BAR_COLOR
+                                        }}>{item.name}</Text>
+                                    <Image
+                                        resizeMode={'cover'}
+                                        style={{
+                                            width: 20,
+                                            height: 20,
+                                            alignSelf: 'center',
+                                            marginEnd: 15
+                                        }} source={item.isSelected ? require('../assets/images/ic_tick.png') :
+                                        require('../assets/images/ic_untick.png')}/>
+                                </View>
+                            </TouchableOpacity>
+                        )}/>
+                )}
+
+                {(
+                    !this.state.isLoading && this.state.playerList.length > 0 &&
+                    <View style={{
+                        flexDirection: 'row',
+                        marginStart: 20,
+                        marginEnd: 20,
+                        marginBottom: 8,
+                    }}>
+                        <TouchableOpacity style={{
                             flex: 1,
                         }}>
-                        <Text
+                            <Text
+                                style={{
+                                    width: '95%',
+                                    fontFamily: fontStyle.MontserratBold,
+                                    fontSize: 12,
+                                    marginEnd: 10,
+                                    paddingTop: 16,
+                                    alignSelf: 'center',
+                                    paddingBottom: 16,
+                                    textAlign: 'center',
+                                    paddingStart: 20,
+                                    paddingEnd: 20,
+                                    borderRadius: 6,
+                                    backgroundColor: colors.PRIMARY_COLOR,
+                                    color: colors.WHITE
+                                }}>{
+                                Constants.NOT_NOW
+                            }</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => {
+                                let list = this.state.playerList.filter((item) => {
+                                    return item.isSelected
+                                })
+                                if (list.length < 2) {
+                                    Alert.alert("", "Please select at least two players")
+                                    return
+                                }
+                                this.props.navigation.navigate("SelectCaptainWicketKeeperScreen", {
+                                    teamName: this.state.teamName,
+                                    playerList: list
+                                });
+                            }}
                             style={{
-                                fontFamily: fontStyle.MontserratBold,
-                                width: '100%',
-                                fontSize: 12,
-                                paddingTop: 16,
-                                paddingBottom: 16,
-                                textAlign: 'center',
-                                paddingStart: 20,
-                                paddingEnd: 20,
-                                borderRadius: 6,
-                                backgroundColor: colors.STATUS_BAR_COLOR,
-                                color: colors.WHITE
-                            }}>{
-                            Constants.NEXT
-                        }</Text>
-                    </TouchableOpacity>
-                </View>
+                                flex: 1,
+                            }}>
+                            <Text
+                                style={{
+                                    fontFamily: fontStyle.MontserratBold,
+                                    width: '100%',
+                                    fontSize: 12,
+                                    paddingTop: 16,
+                                    paddingBottom: 16,
+                                    textAlign: 'center',
+                                    paddingStart: 20,
+                                    paddingEnd: 20,
+                                    borderRadius: 6,
+                                    backgroundColor: colors.STATUS_BAR_COLOR,
+                                    color: colors.WHITE
+                                }}>{
+                                Constants.NEXT
+                            }</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                )}
+
             </View>
         );
     }
