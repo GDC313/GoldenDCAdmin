@@ -308,21 +308,62 @@ class StartMatchScreen1 extends Component {
                             alignItems: 'center',
                             flex: 1,
                         }}>
-                        <ImageBackground
-                            resizeMode={'cover'}
-                            style={{
-                                width: 45,
-                                height: 45,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                            }} source={require('../assets/images/ic_rond_gradiant.png')}>
-                            <Image
-                                resizeMode={'cover'}
-                                style={{
-                                    width: 25,
-                                    height: 25,
-                                }} source={require('../assets/images/ic_top_logo.png')}/>
-                        </ImageBackground>
+
+                        {
+                            this.state.teamFirstImage !== null ?
+                                this.state.teamFirstImage !== "" ?
+                                    <Image
+                                        resizeMode={'cover'}
+                                        style={{
+                                            width: 45,
+                                            height: 45,
+                                            borderRadius: 25,
+                                            marginEnd: 10
+                                        }}
+                                        source={{uri: "https://www.goldendc.demourl.ca/public/uploaded/images/" + this.state.teamFirstImage}}/>
+                                    :
+                                    <Image
+                                        resizeMode={'cover'}
+                                        style={{
+                                            width: 45,
+                                            height: 45,
+                                            borderRadius: 25,
+                                            marginEnd: 10
+                                        }}
+                                        source={require('../assets/images/ic_top_logo.png')}/>
+                                :
+                                <ImageBackground
+                                    resizeMode={'cover'}
+                                    style={{
+                                        width: 45,
+                                        height: 45,
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }} source={require('../assets/images/ic_rond_gradiant.png')}>
+                                    <Image
+                                        resizeMode={'cover'}
+                                        style={{
+                                            width: 25,
+                                            height: 25,
+                                        }} source={require('../assets/images/ic_add.png')}/>
+                                </ImageBackground>
+                        }
+
+                        {/*<ImageBackground*/}
+                        {/*    resizeMode={'cover'}*/}
+                        {/*    style={{*/}
+                        {/*        width: 45,*/}
+                        {/*        height: 45,*/}
+                        {/*        alignItems: 'center',*/}
+                        {/*        justifyContent: 'center',*/}
+                        {/*    }} source={require('../assets/images/ic_rond_gradiant.png')}>*/}
+                        {/*    <Image*/}
+                        {/*        resizeMode={'cover'}*/}
+                        {/*        style={{*/}
+                        {/*            width: 25,*/}
+                        {/*            height: 25,*/}
+                        {/*        }} source={require('../assets/images/ic_top_logo.png')}/>*/}
+                        {/*</ImageBackground>*/}
                         <Text
                             style={{
                                 fontFamily: fontStyle.MontserratMedium,
@@ -365,21 +406,62 @@ class StartMatchScreen1 extends Component {
                             alignItems: 'center',
                             flex: 1,
                         }}>
-                        <ImageBackground
-                            resizeMode={'cover'}
-                            style={{
-                                width: 45,
-                                height: 45,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                            }} source={require('../assets/images/ic_rond_gradiant.png')}>
-                            <Image
-                                resizeMode={'cover'}
-                                style={{
-                                    width: 25,
-                                    height: 25,
-                                }} source={require('../assets/images/ic_top_logo.png')}/>
-                        </ImageBackground>
+
+                        {
+                            this.state.teamSecondImage !== null ?
+                                this.state.teamSecondImage !== "" ?
+                                    <Image
+                                        resizeMode={'cover'}
+                                        style={{
+                                            width: 45,
+                                            height: 45,
+                                            borderRadius: 25,
+                                            marginEnd: 10
+                                        }}
+                                        source={{uri: "https://www.goldendc.demourl.ca/public/uploaded/images/" + this.state.teamSecondImage}}/>
+                                    :
+                                    <Image
+                                        resizeMode={'cover'}
+                                        style={{
+                                            width: 45,
+                                            height: 45,
+                                            borderRadius: 25,
+                                            marginEnd: 10
+                                        }}
+                                        source={require('../assets/images/ic_top_logo.png')}/>
+                                :
+                                <ImageBackground
+                                    resizeMode={'cover'}
+                                    style={{
+                                        width: 45,
+                                        height: 45,
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }} source={require('../assets/images/ic_rond_gradiant.png')}>
+                                    <Image
+                                        resizeMode={'cover'}
+                                        style={{
+                                            width: 25,
+                                            height: 25,
+                                        }} source={require('../assets/images/ic_add.png')}/>
+                                </ImageBackground>
+                        }
+
+                        {/*<ImageBackground*/}
+                        {/*    resizeMode={'cover'}*/}
+                        {/*    style={{*/}
+                        {/*        width: 45,*/}
+                        {/*        height: 45,*/}
+                        {/*        alignItems: 'center',*/}
+                        {/*        justifyContent: 'center',*/}
+                        {/*    }} source={require('../assets/images/ic_rond_gradiant.png')}>*/}
+                        {/*    <Image*/}
+                        {/*        resizeMode={'cover'}*/}
+                        {/*        style={{*/}
+                        {/*            width: 25,*/}
+                        {/*            height: 25,*/}
+                        {/*        }} source={require('../assets/images/ic_top_logo.png')}/>*/}
+                        {/*</ImageBackground>*/}
                         <Text
                             style={{
                                 fontFamily: fontStyle.MontserratMedium,
