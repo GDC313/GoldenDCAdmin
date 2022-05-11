@@ -27,9 +27,11 @@ class StartMatchScreen1 extends Component {
         mThis = this;
         this.state = {
             teamFirstName: Constants.SELECT_TEAM_SMALL,
+            teamFirstId: "",
             teamFirstImage: null,
             teamFirstSquad: [],
             teamSecondName: Constants.SELECT_TEAM_SMALL,
+            teamSecondId: "",
             teamSecondSquad: [],
             teamSecondImage: null,
             isTeamFirstSelect: null,
@@ -48,17 +50,19 @@ class StartMatchScreen1 extends Component {
 
 
     componentDidMount() {
+        AsyncStorage.setItem("teamData", "");
         this._unsubscribe = this.props.navigation.addListener('focus', () => {
             // to get
             AsyncStorage.getItem("teamData")
                 .then(item => {
-                    if (item !== null) {
+                    if (item !== null && item !== "") {
                         item = JSON.parse(item);
-                        console.log("item: ", item)
+                        // console.log("item: ", item)
                         if (this.state.isTeamFirstSelect !== null) {
                             if (this.state.isTeamFirstSelect) {
                                 this.setState({
                                     teamFirstName: item.teamName,
+                                    teamFirstId: item.teamId,
                                     teamFirstImage: item.logo === null ? "" : item.logo,
                                     teamFirstSquad: item.teamSquad,
                                     isTeamFirstSelect: null
@@ -66,6 +70,7 @@ class StartMatchScreen1 extends Component {
                             } else {
                                 this.setState({
                                     teamSecondName: item.teamName,
+                                    teamSecondId: item.teamId,
                                     teamSecondImage: item.logo === null ? "" : item.logo,
                                     teamSecondSquad: item.teamSquad,
                                     isTeamFirstSelect: null
@@ -76,6 +81,8 @@ class StartMatchScreen1 extends Component {
                     if (this.state.teamFirstSquad.length > 0 && this.state.teamSecondSquad.length > 0) {
                         this.setState({
                             isTeamSelectionCompleted: true
+                        }, () => {
+                            AsyncStorage.setItem("teamData", "");
                         });
                     }
                 })
@@ -514,7 +521,6 @@ class StartMatchScreen1 extends Component {
                                 paddingStart: 10,
                                 fontFamily: fontStyle.MontserratRegular,
                                 fontSize: 14,
-
                             }}
                             underlineColorAndroid="transparent"
                             placeholder={Constants.OVER_PER_BOWLER}
@@ -615,6 +621,18 @@ class StartMatchScreen1 extends Component {
                             let city = this.state.city
                             let groundName = this.state.groundName
                             let dateTime = this.state.dateTime
+
+                            let teamFirstName = this.state.teamFirstName
+                            let teamFirstId = this.state.teamFirstId
+                            let teamFirstImage = this.state.teamFirstImage
+                            let teamFirstSquad = this.state.teamFirstSquad
+
+                            let teamSecondName = this.status.teamSecondName
+                            let teamSecondId = this.state.teamSecondId
+                            let teamSecondImage = this.state.teamSecondImage
+                            let teamSecondSquad = this.state.teamSecondSquad
+
+
                             if (noOfOvers.trim() === "") {
                                 Alert.alert("", "Please enter No. Of Overs")
                                 return;
@@ -635,6 +653,8 @@ class StartMatchScreen1 extends Component {
                                 Alert.alert("", "Please enter Date & Time")
                                 return;
                             }
+
+
 
                             this.props.navigation.navigate("TossScreen", {
                                 teamFirstName: this.state.teamFirstName,

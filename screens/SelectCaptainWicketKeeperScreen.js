@@ -21,6 +21,7 @@ class SelectCaptainWicketKeeperScreen extends Component {
         super(props);
         this.state = {
             teamName: this.props.route.params.teamName,
+            teamId: this.props.route.params.teamId,
             logo: this.props.route.params.logo,
             isTeamFirstSelect: this.props.route.params.isTeamFirstSelect,
             playerList: this.props.route.params.playerList,
@@ -231,17 +232,17 @@ class SelectCaptainWicketKeeperScreen extends Component {
                                 Alert.alert("", "Please select at least one Wicket Keeper")
                                 return
                             }
+
                             let jsonData = {
+                                teamId: this.props.route.params.teamId,
                                 teamSquad: this.state.playerList,
                                 teamName: this.state.teamName,
                                 isTeamFirstSelect: this.state.isTeamFirstSelect,
-                                logo: this.state.logo
+                                logo: this.state.logo,
                             }
                             // to set
                             AsyncStorage.setItem("teamData", JSON.stringify(jsonData));
-
                             this.props.navigation.pop(3)
-
                         }}
                         style={{
                             flex: 1,

@@ -148,12 +148,12 @@ class TeamListScreen extends Component {
             .then(response => response.text())
             .then(result => {
                 if (result !== undefined && result !== null) {
-                    console.log("result: ", result)
+                    // console.log("result: ", result)
                     let resultData = JSON.parse(result)
                     if (resultData.data !== undefined &&
                         resultData.data !== null &&
                         resultData.data.length > 0) {
-                        console.log("resultData: ", resultData.data)
+                        // console.log("resultData: ", resultData.data)
 
                         let data = resultData.data.filter((item) =>
                             item.name !== undefined &&
@@ -431,6 +431,7 @@ class TeamListScreen extends Component {
                                 }
                                 this.props.navigation.navigate("SelectCaptainWicketKeeperScreen", {
                                     teamName: this.state.teamName,
+                                    teamId: this.state.teamId,
                                     logo: this.state.logo,
                                     isTeamFirstSelect: this.state.isTeamFirstSelect,
                                     playerList: list

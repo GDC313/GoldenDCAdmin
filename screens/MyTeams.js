@@ -17,29 +17,6 @@ import fontStyle from "../styles/fontStyle";
 import Constants from "../styles/Constants";
 import AsyncStorage from "@react-native-community/async-storage";
 
-let data = [
-    {
-        teamName: "Amreli11",
-        city: "Amreli"
-    },
-    {
-        teamName: "Ahmedabad11",
-        city: "Ahmedabad"
-    },
-    {
-        teamName: "Rajkot11",
-        city: "Rajkot"
-    },
-    {
-        teamName: "Savarkundla11",
-        city: "Savarkundla"
-    },
-    {
-        teamName: "Gariyadhar11",
-        city: "Gariyadhar"
-    },
-]
-
 class MyTeams extends Component {
     constructor(props) {
         super(props);
@@ -65,12 +42,12 @@ class MyTeams extends Component {
             .then(response => response.text())
             .then(result => {
                 if (result !== undefined && result !== null) {
-                    console.log("result: ", result)
+                    // console.log("result: ", result)
                     let resultData = JSON.parse(result)
                     if (resultData.data !== undefined &&
                         resultData.data !== null &&
                         resultData.data.length > 0) {
-                        console.log("resultData: ", resultData.data)
+                        // console.log("resultData: ", resultData.data)
                         let data = resultData.data.filter((item) =>
                             item.city !== undefined &&
                             item.city !== null &&
@@ -148,7 +125,7 @@ class MyTeams extends Component {
                 </View>
                 <TouchableOpacity
                     onPress={() => {
-                        this.props.navigation.navigate("AddTeamScreen",{
+                        this.props.navigation.navigate("AddTeamScreen", {
                             isTeamFirstSelect: this.state.isTeamFirstSelect,
                         });
                     }}>
@@ -210,26 +187,36 @@ class MyTeams extends Component {
                         data={this.state.teamList}
                         renderItem={({item}) => (
                             <TouchableOpacity onPress={() => {
-                                console.log("item: ",item)
+                                // console.log("item: ",item)
 
                                 AsyncStorage.getItem("teamData")
-                                    .then(item => {
-                                        if (item !== null) {
-                                            item = JSON.parse(item);
-                                            console.log("item: ", item)
-                                        }else{
-
+                                    .then(itemData => {
+                                        console.log("item: ", itemData)
+                                        if (itemData !== null) {
+                                            itemData = JSON.parse(itemData);
+                                            if (itemData.teamId === item.id) {
+                                                alert("This team already selected")
+                                            } else {
+                                                this.props.navigation.navigate("TeamListScreen", {
+                                                    teamId: item.id,
+                                                    teamName: item.name,
+                                                    city: item.city,
+                                                    logo: item.logo,
+                                                    isTeamFirstSelect: this.state.isTeamFirstSelect,
+                                                    isNewAddPlayer: false
+                                                });
+                                            }
+                                        } else {
+                                            this.props.navigation.navigate("TeamListScreen", {
+                                                teamId: item.id,
+                                                teamName: item.name,
+                                                city: item.city,
+                                                logo: item.logo,
+                                                isTeamFirstSelect: this.state.isTeamFirstSelect,
+                                                isNewAddPlayer: false
+                                            });
                                         }
                                     });
-
-                                this.props.navigation.navigate("TeamListScreen", {
-                                    teamId: item.id,
-                                    teamName: item.name,
-                                    city: item.city,
-                                    logo: item.logo,
-                                    isTeamFirstSelect: this.state.isTeamFirstSelect,
-                                    isNewAddPlayer: false
-                                });
                             }}>
                                 <View style={{
                                     flexDirection: 'column',
