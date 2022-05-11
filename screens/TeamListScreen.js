@@ -23,7 +23,9 @@ class TeamListScreen extends Component {
         this.state = {
             teamName: this.props.route.params.teamName,
             teamId: this.props.route.params.teamId,
+            isTeamFirstSelect: this.props.route.params.isTeamFirstSelect,
             city: this.props.route.params.city,
+            logo: this.props.route.params.logo,
             playerName: this.props.route.params.playerName,
             phoneNumber: this.props.route.params.phoneNumber,
             filePath: this.props.route.params.filePath,
@@ -255,7 +257,9 @@ class TeamListScreen extends Component {
                             this.props.navigation.navigate("AddPlayerScreen", {
                                 teamName: this.state.teamName,
                                 teamId: this.state.teamId,
-                                city: this.state.city
+                                city: this.state.city,
+                                isTeamFirstSelect: this.state.isTeamFirstSelect,
+                                logo: this.state.logo
                             });
                         }}>
                         <Text
@@ -427,6 +431,8 @@ class TeamListScreen extends Component {
                                 }
                                 this.props.navigation.navigate("SelectCaptainWicketKeeperScreen", {
                                     teamName: this.state.teamName,
+                                    logo: this.state.logo,
+                                    isTeamFirstSelect: this.state.isTeamFirstSelect,
                                     playerList: list
                                 });
                             }}

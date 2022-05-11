@@ -28,6 +28,7 @@ class AddPlayerScreen extends Component {
             teamName: this.props.route.params.teamName,
             teamId: this.props.route.params.teamId,
             city: this.props.route.params.city,
+            logo: this.props.route.params.logo,
             playerName: '',
             phoneNumber: '',
             filePath: '',

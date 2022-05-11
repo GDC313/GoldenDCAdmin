@@ -15,6 +15,7 @@ import {Divider} from "react-native-elements";
 import colors from "../styles/colors";
 import fontStyle from "../styles/fontStyle";
 import Constants from "../styles/Constants";
+import AsyncStorage from "@react-native-community/async-storage";
 
 let data = [
     {
@@ -45,6 +46,7 @@ class MyTeams extends Component {
         this.state = {
             teamList: [],
             isLoading: true,
+            isTeamFirstSelect: this.props.route.params.isTeamFirstSelect,
         }
     }
 
@@ -146,7 +148,9 @@ class MyTeams extends Component {
                 </View>
                 <TouchableOpacity
                     onPress={() => {
-                        this.props.navigation.navigate("AddTeamScreen");
+                        this.props.navigation.navigate("AddTeamScreen",{
+                            isTeamFirstSelect: this.state.isTeamFirstSelect,
+                        });
                     }}>
                     <Text
                         style={{
@@ -206,10 +210,24 @@ class MyTeams extends Component {
                         data={this.state.teamList}
                         renderItem={({item}) => (
                             <TouchableOpacity onPress={() => {
+                                console.log("item: ",item)
+
+                                AsyncStorage.getItem("teamData")
+                                    .then(item => {
+                                        if (item !== null) {
+                                            item = JSON.parse(item);
+                                            console.log("item: ", item)
+                                        }else{
+
+                                        }
+                                    });
+
                                 this.props.navigation.navigate("TeamListScreen", {
                                     teamId: item.id,
                                     teamName: item.name,
                                     city: item.city,
+                                    logo: item.logo,
+                                    isTeamFirstSelect: this.state.isTeamFirstSelect,
                                     isNewAddPlayer: false
                                 });
                             }}>

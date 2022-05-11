@@ -27,11 +27,11 @@ class StartMatchScreen1 extends Component {
         mThis = this;
         this.state = {
             teamFirstName: Constants.SELECT_TEAM_SMALL,
-            teamFirstImage: "",
+            teamFirstImage: null,
             teamFirstSquad: [],
             teamSecondName: Constants.SELECT_TEAM_SMALL,
             teamSecondSquad: [],
-            teamSecondImage: "",
+            teamSecondImage: null,
             isTeamFirstSelect: null,
             isTeamSelectionCompleted: false,
             noOfOvers: "",
@@ -54,18 +54,19 @@ class StartMatchScreen1 extends Component {
                 .then(item => {
                     if (item !== null) {
                         item = JSON.parse(item);
+                        console.log("item: ", item)
                         if (this.state.isTeamFirstSelect !== null) {
                             if (this.state.isTeamFirstSelect) {
                                 this.setState({
                                     teamFirstName: item.teamName,
-                                    teamFirstImage: "",
+                                    teamFirstImage: item.logo === null ? "" : item.logo,
                                     teamFirstSquad: item.teamSquad,
                                     isTeamFirstSelect: null
                                 })
                             } else {
                                 this.setState({
                                     teamSecondName: item.teamName,
-                                    teamSecondImage: "",
+                                    teamSecondImage: item.logo === null ? "" : item.logo,
                                     teamSecondSquad: item.teamSquad,
                                     isTeamFirstSelect: null
                                 })
@@ -133,23 +134,51 @@ class StartMatchScreen1 extends Component {
                             this.setState({
                                 isTeamFirstSelect: true
                             })
-                            this.props.navigation.navigate("MyTeams");
+                            this.props.navigation.navigate("MyTeams", {
+                                isTeamFirstSelect: true
+                            });
                         }}>
-                        <ImageBackground
-                            resizeMode={'cover'}
-                            style={{
-                                width: 85,
-                                height: 85,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                            }} source={require('../assets/images/ic_rond_gradiant.png')}>
-                            <Image
-                                resizeMode={'cover'}
-                                style={{
-                                    width: 33,
-                                    height: 33,
-                                }} source={require('../assets/images/ic_add.png')}/>
-                        </ImageBackground>
+
+                        {
+                            this.state.teamFirstImage !== null ?
+                                this.state.teamFirstImage !== "" ?
+                                    <Image
+                                        resizeMode={'cover'}
+                                        style={{
+                                            width: 85,
+                                            height: 85,
+                                            borderRadius: 42,
+                                            marginEnd: 10
+                                        }}
+                                        source={{uri: "https://www.goldendc.demourl.ca/public/uploaded/images/" + this.state.teamFirstImage}}/>
+                                    :
+                                    <Image
+                                        resizeMode={'cover'}
+                                        style={{
+                                            width: 85,
+                                            height: 85,
+                                            borderRadius: 42,
+                                            marginEnd: 10
+                                        }}
+                                        source={require('../assets/images/ic_top_logo.png')}/>
+                                :
+                                <ImageBackground
+                                    resizeMode={'cover'}
+                                    style={{
+                                        width: 85,
+                                        height: 85,
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }} source={require('../assets/images/ic_rond_gradiant.png')}>
+                                    <Image
+                                        resizeMode={'cover'}
+                                        style={{
+                                            width: 33,
+                                            height: 33,
+                                        }} source={require('../assets/images/ic_add.png')}/>
+                                </ImageBackground>
+                        }
+
                         <Text
                             style={{
                                 fontFamily: fontStyle.MontserratMedium,
@@ -199,23 +228,49 @@ class StartMatchScreen1 extends Component {
                                 isTeamFirstSelect: false
                             })
 
-                            this.props.navigation.navigate("MyTeams");
+                            this.props.navigation.navigate("MyTeams", {
+                                isTeamFirstSelect: false
+                            });
                         }}>
-                        <ImageBackground
-                            resizeMode={'cover'}
-                            style={{
-                                width: 85,
-                                height: 85,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                            }} source={require('../assets/images/ic_rond_gradiant.png')}>
-                            <Image
-                                resizeMode={'cover'}
-                                style={{
-                                    width: 33,
-                                    height: 33,
-                                }} source={require('../assets/images/ic_add.png')}/>
-                        </ImageBackground>
+                        {
+                            this.state.teamSecondImage !== null ?
+                                this.state.teamSecondImage !== "" ?
+                                    <Image
+                                        resizeMode={'cover'}
+                                        style={{
+                                            width: 85,
+                                            height: 85,
+                                            borderRadius: 42,
+                                            marginEnd: 10
+                                        }}
+                                        source={{uri: "https://www.goldendc.demourl.ca/public/uploaded/images/" + this.state.teamSecondImage}}/>
+                                    :
+                                    <Image
+                                        resizeMode={'cover'}
+                                        style={{
+                                            width: 85,
+                                            height: 85,
+                                            borderRadius: 42,
+                                            marginEnd: 10
+                                        }}
+                                        source={require('../assets/images/ic_top_logo.png')}/>
+                                :
+                                <ImageBackground
+                                    resizeMode={'cover'}
+                                    style={{
+                                        width: 85,
+                                        height: 85,
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }} source={require('../assets/images/ic_rond_gradiant.png')}>
+                                    <Image
+                                        resizeMode={'cover'}
+                                        style={{
+                                            width: 33,
+                                            height: 33,
+                                        }} source={require('../assets/images/ic_add.png')}/>
+                                </ImageBackground>
+                        }
                         <Text
                             style={{
                                 fontFamily: fontStyle.MontserratMedium,
