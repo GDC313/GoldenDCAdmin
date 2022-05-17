@@ -15,11 +15,13 @@ import {Divider} from "react-native-elements";
 import colors from "../styles/colors";
 import fontStyle from "../styles/fontStyle";
 import Constants from "../styles/Constants";
+import database from "@react-native-firebase/database";
 
 class StartInningScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            firebaseID: this.props.route.params.firebaseID,
             battingTeamName: this.props.route.params.battingTeamName,
             bowlingTeamName: this.props.route.params.bowlingTeamName,
             battingTeamSquadMain: this.props.route.params.battingTeamSquad,
@@ -47,7 +49,77 @@ class StartInningScreen extends Component {
         }
     }
 
+    updateBattingIndex(list, selectedIndex, isStriker) {
+        let position = isStriker ? 1 : 2
+        let path = "/liveMatchList/" + this.state.firebaseID
+        database().ref(path)
+            .orderByValue()
+            .once('value')
+            .then((result) => {
+                let resultJson = JSON.parse(JSON.stringify(result))
+                // console.log("result: ", resultJson)
+                let playerIndex = resultJson.teamFirstSquad.findIndex(
+                    (item) => item.id === list[selectedIndex].id)
+                console.log("playerIndexInFirstSquad: ", JSON.stringify(playerIndex))
+                if (playerIndex === -1) {
+                    playerIndex = resultJson.teamSecondSquad.findIndex(
+                        (item) => item.id === list[selectedIndex].id)
+                    if (resultJson.teamSecondSquad[playerIndex].battingIndex !== undefined &&
+                        resultJson.teamSecondSquad[playerIndex].battingIndex > 0) {
+                    } else {
+                        resultJson.teamSecondSquad.filter((item) => {
+                            if (isStriker && item.battingIndex === 1) {
+                                item.battingIndex = 0
+                            } else if (!isStriker && item.battingIndex === 2) {
+                                item.battingIndex = 0
+                            }
+                            item.bowlingIndex = 0
+                        })
+                        resultJson.teamSecondSquad[playerIndex].battingIndex = position
+                    }
+                } else {
+                    playerIndex = resultJson.teamFirstSquad.findIndex(
+                        (item) => item.id === list[selectedIndex].id)
+                    if (resultJson.teamFirstSquad[playerIndex].battingIndex !== undefined &&
+                        resultJson.teamFirstSquad[playerIndex].battingIndex > 0) {
+                    } else {
+                        resultJson.teamFirstSquad.filter((item) => {
+                            if (isStriker && item.battingIndex === 1) {
+                                item.battingIndex = 0
+                            } else if (!isStriker && item.battingIndex === 2) {
+                                item.battingIndex = 0
+                            }
+                            item.bowlingIndex = 0
+                        })
+                        resultJson.teamFirstSquad[playerIndex].battingIndex = position
+                    }
+                }
+
+                database()
+                    .ref(path)
+                    .update({
+                        teamFirstSquad: resultJson.teamFirstSquad,
+                        teamSecondSquad: resultJson.teamSecondSquad
+                    })
+                    .then((result) => console.log('Data updated.', result));
+                if (isStriker) {
+                    this.setState({
+                        battingTeamSquad: list,
+                        strikerName: list[selectedIndex].name,
+                        isSelectBattingModel: false
+                    })
+                } else {
+                    this.setState({
+                        battingTeamSquad: list,
+                        nonStrikerName: list[selectedIndex].name,
+                        isSelectBattingModel: false
+                    })
+                }
+            });
+    }
+
     render() {
+
         return (
             <View style={{
                 flex: 1,
@@ -93,11 +165,11 @@ class StartInningScreen extends Component {
                     animationType="fade"
                     transparent={true}
                     style={{
-                        alignSelf:'center',
+                        alignSelf: 'center',
                     }}
                     visible={this.state.isSelectBattingModel}>
                     <View style={{
-                        backgroundColor:colors.WHITE,
+                        backgroundColor: colors.WHITE,
                         position: 'absolute',
                         top: 0,
                         left: 0,
@@ -108,42 +180,48 @@ class StartInningScreen extends Component {
                             style={{
                                 fontFamily: fontStyle.MontserratBold,
                                 fontSize: 20,
-                                marginTop:10,
-                                alignSelf:'center',
+                                marginTop: 10,
+                                alignSelf: 'center',
                                 color: colors.PRIMARY_COLOR
                             }}>{Constants.SELECT_BASTMAN}</Text>
 
                         <FlatList
                             contentContainerStyle={{
-                                width:'100%',
-                                backgroundColor:colors.WHITE,
+                                width: '100%',
+                                backgroundColor: colors.WHITE,
                                 paddingTop: 10,
                             }}
                             data={this.state.battingTeamSquad}
                             renderItem={({item, index}) => (
                                 <TouchableOpacity onPress={() => {
 
-                                    let list = this.state.battingTeamSquad
-                                    if(this.state.isStrikerSelection){
+                                    let list = JSON.parse(JSON.stringify(this.state.battingTeamSquad))
+                                    console.log("isStriker: ", list[index])
+                                    // console.log("isNonStriker: ",list[index].isNonStriker)
+
+                                    if (this.state.isStrikerSelection) {
+                                        if (list[index].isNonStriker) {
+                                            alert("Already selected")
+                                            return
+                                        }
                                         list.filter((item) => {
                                             item.isStriker = false
                                         })
                                         list[index].isStriker = !list[index].isStriker
-                                        this.setState({
-                                            battingTeamSquad: list,
-                                            strikerName:list[index].playerName,
-                                            isSelectBattingModel:false
-                                        })
-                                    }else{
+                                        console.log("isStriker after: ", list[index])
+                                        this.updateBattingIndex(list, index, true)
+
+                                    } else {
+                                        if (list[index].isStriker) {
+                                            alert("Already selected")
+                                            return
+                                        }
                                         list.filter((item) => {
                                             item.isNonStriker = false
                                         })
                                         list[index].isNonStriker = !list[index].isNonStriker
-                                        this.setState({
-                                            battingTeamSquad: list,
-                                            nonStrikerName:list[index].playerName,
-                                            isSelectBattingModel:false
-                                        })
+                                        this.updateBattingIndex(list, index, false)
+
                                     }
                                 }}>
                                     <View style={{
@@ -175,7 +253,7 @@ class StartInningScreen extends Component {
                                                 marginStart: 10,
                                                 flex: 1,
                                                 color: colors.STATUS_BAR_COLOR
-                                            }}>{item.playerName}</Text>
+                                            }}>{item.name}</Text>
                                         <Image
                                             resizeMode={'cover'}
                                             style={{
@@ -197,11 +275,11 @@ class StartInningScreen extends Component {
                     animationType="fade"
                     transparent={true}
                     style={{
-                        alignSelf:'center',
+                        alignSelf: 'center',
                     }}
                     visible={this.state.isSelectBowlingModel}>
                     <View style={{
-                        backgroundColor:colors.WHITE,
+                        backgroundColor: colors.WHITE,
                         position: 'absolute',
                         top: 0,
                         left: 0,
@@ -213,31 +291,31 @@ class StartInningScreen extends Component {
                             style={{
                                 fontFamily: fontStyle.MontserratBold,
                                 fontSize: 20,
-                                marginTop:10,
-                                alignSelf:'center',
+                                marginTop: 10,
+                                alignSelf: 'center',
                                 color: colors.PRIMARY_COLOR
                             }}>{Constants.SELECT_BOWLER}</Text>
 
                         <FlatList
                             contentContainerStyle={{
-                                width:'100%',
-                                backgroundColor:colors.WHITE,
+                                width: '100%',
+                                backgroundColor: colors.WHITE,
                                 paddingTop: 10,
                             }}
                             data={this.state.bowlingTeamSquad}
                             renderItem={({item, index}) => (
                                 <TouchableOpacity onPress={() => {
-
-                                    let list = this.state.bowlingTeamSquad
+                                    // let list = this.state.bowlingTeamSquad
+                                    let list = JSON.parse(JSON.stringify(this.state.bowlingTeamSquad))
                                     list.filter((item) => {
                                         item.isBowler = false
                                     })
                                     list[index].isBowler = !list[index].isBowler
                                     this.setState({
                                         bowlingTeamSquad: list,
-                                        bowlerName:list[index].playerName,
-                                        isSelectBowlingModel:false,
-                                        isSelectBowlingStyleModel:true
+                                        bowlerName: list[index].name,
+                                        isSelectBowlingModel: false,
+                                        isSelectBowlingStyleModel: true
                                     })
                                 }}>
                                     <View style={{
@@ -269,7 +347,7 @@ class StartInningScreen extends Component {
                                                 marginStart: 10,
                                                 flex: 1,
                                                 color: colors.STATUS_BAR_COLOR
-                                            }}>{item.playerName}</Text>
+                                            }}>{item.name}</Text>
                                         <Image
                                             resizeMode={'cover'}
                                             style={{
@@ -291,23 +369,23 @@ class StartInningScreen extends Component {
                     transparent={true}
                     visible={this.state.isSelectBowlingStyleModel}>
                     <View style={{
-                        alignItems:'center',
-                        justifyContent:'center',
-                        alignSelf:'center',
-                        backgroundColor:'rgba(15,79,39,0.5)',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        alignSelf: 'center',
+                        backgroundColor: 'rgba(15,79,39,0.5)',
                         position: 'absolute',
                         left: 0,
                         right: 0,
-                        top:0,
-                        bottom:0,
+                        top: 0,
+                        bottom: 0,
                     }}>
 
                         <View style={{
-                            width:'90%',
-                            backgroundColor:colors.WHITE,
+                            width: '90%',
+                            backgroundColor: colors.WHITE,
                             // paddingTop:10,
-                            padding:21,
-                            borderRadius:15,
+                            padding: 21,
+                            borderRadius: 15,
                         }}>
                             <Text
                                 style={{
@@ -316,42 +394,42 @@ class StartInningScreen extends Component {
                                     color: colors.STATUS_BAR_COLOR
                                 }}>{Constants.BOWLING_STYLE}</Text>
                             <View style={{
-                                flexDirection:'row'
+                                flexDirection: 'row'
                             }}>
                                 <Text
                                     style={{
                                         fontFamily: fontStyle.MontserratRegular,
                                         fontSize: 12,
                                         color: colors.STATUS_BAR_COLOR
-                                    }}>{Constants.WHAT_BOWLING_STYLE+" "}</Text>
+                                    }}>{Constants.WHAT_BOWLING_STYLE + " "}</Text>
                                 <Text
                                     style={{
                                         fontFamily: fontStyle.MontserratBold,
                                         fontSize: 12,
                                         color: colors.STATUS_BAR_COLOR
-                                    }}>{this.state.bowlerName+" ?"}</Text>
+                                    }}>{this.state.bowlerName + " ?"}</Text>
                             </View>
 
                             <View style={{
-                                flexDirection:'row',
-                                marginTop:16,
+                                flexDirection: 'row',
+                                marginTop: 16,
                             }}>
                                 <TouchableOpacity
                                     style={{
                                         flex: 1,
                                     }}
-                                    onPress={()=>{
-                                    this.setState({
-                                        isSelectBowlingStyleRightArmFast: true,
-                                        isSelectBowlingStyleRightArmMedium: false,
-                                        isSelectBowlingStyleLeftArmFast: false,
-                                        isSelectBowlingStyleLeftArmMedium: false,
-                                        isSelectBowlingStyleSlowLeftArmOrthodox: false,
-                                        isSelectBowlingStyleSlowLeftArmChinaman: false,
-                                        isSelectBowlingStyleRightArmOffBreak: false,
-                                        isSelectBowlingStyleRightArmLrgBreak: false,
-                                    })
-                                }}>
+                                    onPress={() => {
+                                        this.setState({
+                                            isSelectBowlingStyleRightArmFast: true,
+                                            isSelectBowlingStyleRightArmMedium: false,
+                                            isSelectBowlingStyleLeftArmFast: false,
+                                            isSelectBowlingStyleLeftArmMedium: false,
+                                            isSelectBowlingStyleSlowLeftArmOrthodox: false,
+                                            isSelectBowlingStyleSlowLeftArmChinaman: false,
+                                            isSelectBowlingStyleRightArmOffBreak: false,
+                                            isSelectBowlingStyleRightArmLrgBreak: false,
+                                        })
+                                    }}>
                                     <View style={{
                                         backgroundColor: '#76B04315',
                                         // flex: 1,
@@ -361,12 +439,12 @@ class StartInningScreen extends Component {
                                         marginEnd: 16,
                                         borderRadius: 10,
                                         height: 55,
-                                        alignItems:'center',
-                                        justifyContent:'center',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
                                     }}>
                                         <Text
                                             style={{
-                                                textAlign:'center',
+                                                textAlign: 'center',
                                                 fontFamily: fontStyle.MontserratBold,
                                                 fontSize: 12,
                                                 color: colors.STATUS_BAR_COLOR
@@ -377,7 +455,7 @@ class StartInningScreen extends Component {
                                     style={{
                                         flex: 1,
                                     }}
-                                    onPress={()=>{
+                                    onPress={() => {
                                         this.setState({
                                             isSelectBowlingStyleRightArmFast: false,
                                             isSelectBowlingStyleRightArmMedium: true,
@@ -398,12 +476,12 @@ class StartInningScreen extends Component {
                                         marginEnd: 16,
                                         borderRadius: 10,
                                         height: 55,
-                                        alignItems:'center',
-                                        justifyContent:'center',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
                                     }}>
                                         <Text
                                             style={{
-                                                textAlign:'center',
+                                                textAlign: 'center',
                                                 fontFamily: fontStyle.MontserratBold,
                                                 fontSize: 12,
                                                 color: colors.STATUS_BAR_COLOR
@@ -414,14 +492,14 @@ class StartInningScreen extends Component {
                             </View>
 
                             <View style={{
-                                flexDirection:'row',
-                                marginTop:16,
+                                flexDirection: 'row',
+                                marginTop: 16,
                             }}>
                                 <TouchableOpacity
                                     style={{
                                         flex: 1,
                                     }}
-                                    onPress={()=>{
+                                    onPress={() => {
                                         this.setState({
                                             isSelectBowlingStyleRightArmFast: false,
                                             isSelectBowlingStyleRightArmMedium: false,
@@ -442,12 +520,12 @@ class StartInningScreen extends Component {
                                         marginEnd: 16,
                                         borderRadius: 10,
                                         height: 55,
-                                        alignItems:'center',
-                                        justifyContent:'center',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
                                     }}>
                                         <Text
                                             style={{
-                                                textAlign:'center',
+                                                textAlign: 'center',
                                                 fontFamily: fontStyle.MontserratBold,
                                                 fontSize: 12,
                                                 color: colors.STATUS_BAR_COLOR
@@ -458,7 +536,7 @@ class StartInningScreen extends Component {
                                     style={{
                                         flex: 1,
                                     }}
-                                    onPress={()=>{
+                                    onPress={() => {
                                         this.setState({
                                             isSelectBowlingStyleRightArmFast: false,
                                             isSelectBowlingStyleRightArmMedium: false,
@@ -479,12 +557,12 @@ class StartInningScreen extends Component {
                                         marginEnd: 16,
                                         borderRadius: 10,
                                         height: 55,
-                                        alignItems:'center',
-                                        justifyContent:'center',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
                                     }}>
                                         <Text
                                             style={{
-                                                textAlign:'center',
+                                                textAlign: 'center',
                                                 fontFamily: fontStyle.MontserratBold,
                                                 fontSize: 12,
                                                 color: colors.STATUS_BAR_COLOR
@@ -494,14 +572,14 @@ class StartInningScreen extends Component {
                             </View>
 
                             <View style={{
-                                flexDirection:'row',
-                                marginTop:16,
+                                flexDirection: 'row',
+                                marginTop: 16,
                             }}>
                                 <TouchableOpacity
                                     style={{
                                         flex: 1,
                                     }}
-                                    onPress={()=>{
+                                    onPress={() => {
                                         this.setState({
                                             isSelectBowlingStyleRightArmFast: false,
                                             isSelectBowlingStyleRightArmMedium: false,
@@ -522,12 +600,12 @@ class StartInningScreen extends Component {
                                         marginEnd: 16,
                                         borderRadius: 10,
                                         height: 55,
-                                        alignItems:'center',
-                                        justifyContent:'center',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
                                     }}>
                                         <Text
                                             style={{
-                                                textAlign:'center',
+                                                textAlign: 'center',
                                                 fontFamily: fontStyle.MontserratBold,
                                                 fontSize: 12,
                                                 color: colors.STATUS_BAR_COLOR
@@ -538,7 +616,7 @@ class StartInningScreen extends Component {
                                     style={{
                                         flex: 1,
                                     }}
-                                    onPress={()=>{
+                                    onPress={() => {
                                         this.setState({
                                             isSelectBowlingStyleRightArmFast: false,
                                             isSelectBowlingStyleRightArmMedium: false,
@@ -559,12 +637,12 @@ class StartInningScreen extends Component {
                                         marginEnd: 16,
                                         borderRadius: 10,
                                         height: 55,
-                                        alignItems:'center',
-                                        justifyContent:'center',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
                                     }}>
                                         <Text
                                             style={{
-                                                textAlign:'center',
+                                                textAlign: 'center',
                                                 fontFamily: fontStyle.MontserratBold,
                                                 fontSize: 12,
                                                 color: colors.STATUS_BAR_COLOR
@@ -574,14 +652,14 @@ class StartInningScreen extends Component {
 
                             </View>
                             <View style={{
-                                flexDirection:'row',
-                                marginTop:16,
+                                flexDirection: 'row',
+                                marginTop: 16,
                             }}>
                                 <TouchableOpacity
                                     style={{
                                         flex: 1,
                                     }}
-                                    onPress={()=>{
+                                    onPress={() => {
                                         this.setState({
                                             isSelectBowlingStyleRightArmFast: false,
                                             isSelectBowlingStyleRightArmMedium: false,
@@ -602,12 +680,12 @@ class StartInningScreen extends Component {
                                         marginEnd: 16,
                                         borderRadius: 10,
                                         height: 55,
-                                        alignItems:'center',
-                                        justifyContent:'center',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
                                     }}>
                                         <Text
                                             style={{
-                                                textAlign:'center',
+                                                textAlign: 'center',
                                                 fontFamily: fontStyle.MontserratBold,
                                                 fontSize: 12,
                                                 color: colors.STATUS_BAR_COLOR
@@ -618,7 +696,7 @@ class StartInningScreen extends Component {
                                     style={{
                                         flex: 1,
                                     }}
-                                    onPress={()=>{
+                                    onPress={() => {
                                         this.setState({
                                             isSelectBowlingStyleRightArmFast: false,
                                             isSelectBowlingStyleRightArmMedium: false,
@@ -639,12 +717,12 @@ class StartInningScreen extends Component {
                                         marginEnd: 16,
                                         borderRadius: 10,
                                         height: 55,
-                                        alignItems:'center',
-                                        justifyContent:'center',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
                                     }}>
                                         <Text
                                             style={{
-                                                textAlign:'center',
+                                                textAlign: 'center',
                                                 fontFamily: fontStyle.MontserratBold,
                                                 fontSize: 12,
                                                 color: colors.STATUS_BAR_COLOR
@@ -655,16 +733,16 @@ class StartInningScreen extends Component {
                             </View>
 
                             <View style={{
-                                flexDirection:'row',
-                                marginTop:16,
+                                flexDirection: 'row',
+                                marginTop: 16,
                             }}>
                                 <TouchableOpacity
-                                    onPress={()=>{
+                                    onPress={() => {
                                         this.setState({
-                                            isSelectBowlingStyleModel:false
+                                            isSelectBowlingStyleModel: false
                                         })
                                     }}
-                                    style={{flex:1}}>
+                                    style={{flex: 1}}>
                                     <View style={{
                                         backgroundColor: colors.PRIMARY_COLOR,
                                         // flex: 1,
@@ -673,12 +751,12 @@ class StartInningScreen extends Component {
                                         marginEnd: 16,
                                         borderRadius: 6,
                                         height: 48,
-                                        alignItems:'center',
-                                        justifyContent:'center',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
                                     }}>
                                         <Text
                                             style={{
-                                                textAlign:'center',
+                                                textAlign: 'center',
                                                 fontFamily: fontStyle.MontserratBold,
                                                 fontSize: 12,
                                                 color: colors.WHITE
@@ -687,26 +765,26 @@ class StartInningScreen extends Component {
                                 </TouchableOpacity>
 
                                 <TouchableOpacity
-                                    onPress={()=>{
-                                        if(!this.state.isSelectBowlingStyleRightArmFast &&
+                                    onPress={() => {
+                                        if (!this.state.isSelectBowlingStyleRightArmFast &&
                                             !this.state.isSelectBowlingStyleRightArmMedium &&
                                             !this.state.isSelectBowlingStyleLeftArmFast &&
                                             !this.state.isSelectBowlingStyleLeftArmMedium &&
                                             !this.state.isSelectBowlingStyleSlowLeftArmOrthodox &&
                                             !this.state.isSelectBowlingStyleSlowLeftArmChinaman &&
                                             !this.state.isSelectBowlingStyleRightArmOffBreak &&
-                                            !this.state.isSelectBowlingStyleRightArmLrgBreak){
+                                            !this.state.isSelectBowlingStyleRightArmLrgBreak) {
                                             Alert.alert("Please select bowling style")
                                             return
                                         }
                                         this.setState({
-                                            isSelectBowlingStyleModel:false
+                                            isSelectBowlingStyleModel: false
                                         })
 
 
                                     }}
                                     style={{
-                                        flex:1
+                                        flex: 1
                                     }}
                                 >
                                     <View style={{
@@ -717,12 +795,12 @@ class StartInningScreen extends Component {
                                         marginEnd: 16,
                                         borderRadius: 6,
                                         height: 48,
-                                        alignItems:'center',
-                                        justifyContent:'center',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
                                     }}>
                                         <Text
                                             style={{
-                                                textAlign:'center',
+                                                textAlign: 'center',
                                                 fontFamily: fontStyle.MontserratBold,
                                                 fontSize: 12,
                                                 color: colors.WHITE
@@ -926,7 +1004,7 @@ class StartInningScreen extends Component {
                                 return
                             }
 
-                            this.props.navigation.navigate("LiveMatchScoreUpdateScreen",{
+                            this.props.navigation.navigate("LiveMatchScoreUpdateScreen", {
                                 battingTeamName: this.state.battingTeamName,
                                 bowlingTeamName: this.state.bowlingTeamName,
                                 battingTeamSquadMain: this.state.battingTeamSquad,

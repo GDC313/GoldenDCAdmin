@@ -22,7 +22,7 @@ class LiveMatchScoreUpdateScreen extends Component {
         this.state = {
             battingTeamName: this.props.route.params.battingTeamName,
             bowlingTeamName: this.props.route.params.bowlingTeamName,
-            battingTeamSquadMain: this.props.route.params.battingTeamSquad,
+            battingTeamSquadMain: this.props.route.params.battingTeamSquadMain,
             battingTeamSquad: this.props.route.params.battingTeamSquad,
             bowlingTeamSquad: this.props.route.params.bowlingTeamSquad,
             strikerName: this.props.route.params.strikerName,

@@ -18,8 +18,10 @@ import Constants from "../styles/Constants";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import moment from "moment";
+import database, {firebase} from "@react-native-firebase/database";
 
 let mThis;
+let reference;
 
 class StartMatchScreen1 extends Component {
     constructor(props) {
@@ -50,6 +52,10 @@ class StartMatchScreen1 extends Component {
 
 
     componentDidMount() {
+        reference = firebase
+            .app()
+            .database('https://goldendc-fdb99-default-rtdb.firebaseio.com/')//https://<databaseName>.<region>.firebasedatabase.app/
+            .ref('/liveMatchList/');
         AsyncStorage.setItem("teamData", "");
         this._unsubscribe = this.props.navigation.addListener('focus', () => {
             // to get
@@ -137,7 +143,13 @@ class StartMatchScreen1 extends Component {
                         style={{
                             alignItems: 'center',
                         }}
-                        onPress={() => {
+                        onPress={async () => {
+                            // let path = "liveMatchList"
+                            // const scores = await database().ref(path).orderByValue().once('value').then((result) => {
+                            //     console.log("result :", result)
+                            // });
+
+                            // console.log("scores :", scores)
                             this.setState({
                                 isTeamFirstSelect: true
                             })
@@ -621,13 +633,13 @@ class StartMatchScreen1 extends Component {
                             let city = this.state.city
                             let groundName = this.state.groundName
                             let dateTime = this.state.dateTime
-
+                            console.log("noOfOvers",noOfOvers)
                             let teamFirstName = this.state.teamFirstName
                             let teamFirstId = this.state.teamFirstId
                             let teamFirstImage = this.state.teamFirstImage
                             let teamFirstSquad = this.state.teamFirstSquad
 
-                            let teamSecondName = this.status.teamSecondName
+                            let teamSecondName = this.state.teamSecondName
                             let teamSecondId = this.state.teamSecondId
                             let teamSecondImage = this.state.teamSecondImage
                             let teamSecondSquad = this.state.teamSecondSquad
@@ -654,16 +666,54 @@ class StartMatchScreen1 extends Component {
                                 return;
                             }
 
+                            reference.push({
+                                teamFirstName: teamFirstName,
+                                teamFirstId: teamFirstId,
+                                teamFirstImage: teamFirstImage,
+                                teamFirstSquad: teamFirstSquad,
+                                teamSecondName: teamSecondName,
+                                teamSecondId: teamSecondId,
+                                teamSecondImage: teamSecondImage,
+                                teamSecondSquad: teamSecondSquad,
+                                noOfOvers: noOfOvers,
+                                overPerBowler: overPerBowler,
+                                city: city,
+                                groundName: groundName,
+                                dateTime: dateTime
+                            }).then((data) => {
+                                //success callback
+                                // var final = data.substr(data.lastIndexOf('/') + 1);
+                                console.log('data :', JSON.stringify(data))
+                                // console.log('data.val :', data.val())
+                                // console.log('final ' , final)
+                                let response = data.toString();
+                                console.log('response ', response)
+                                let str = response.split("/");
+                                console.log('data ', str)
 
+                                if(str.length > 0){
+                                    let fId = str[str.length - 1]
+                                    this.props.navigation.navigate("TossScreen", {
+                                        firebaseID: fId,
+                                        teamFirstId: this.state.teamFirstId,
+                                        teamFirstName: this.state.teamFirstName,
+                                        teamFirstImage: this.state.teamFirstImage,
+                                        teamFirstSquad: this.state.teamFirstSquad,
+                                        teamSecondId: this.state.teamSecondId,
+                                        teamSecondName: this.state.teamSecondName,
+                                        teamSecondSquad: this.state.teamSecondSquad,
+                                        teamSecondImage: this.state.teamSecondImage,
+                                    })
+                                }else{
+                                    alert("Some problem to inserting data")
+                                }
 
-                            this.props.navigation.navigate("TossScreen", {
-                                teamFirstName: this.state.teamFirstName,
-                                teamFirstImage: this.state.teamFirstImage,
-                                teamFirstSquad: this.state.teamFirstSquad,
-                                teamSecondName: this.state.teamSecondName,
-                                teamSecondSquad: this.state.teamSecondSquad,
-                                teamSecondImage: this.state.teamSecondImage,
+                            }).catch((error) => {
+                                //error callback
+                                console.log('error ', error)
                             })
+
+
                         }}
                         style={{
                             flex: 1,

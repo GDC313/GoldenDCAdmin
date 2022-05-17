@@ -15,14 +15,19 @@ import {Divider} from "react-native-elements";
 import colors from "../styles/colors";
 import fontStyle from "../styles/fontStyle";
 import Constants from "../styles/Constants";
+import database from '@react-native-firebase/database';
+
 
 class TossScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            firebaseID: this.props.route.params.firebaseID,
+            teamFirstId: this.props.route.params.teamFirstId,
             teamFirstName: this.props.route.params.teamFirstName,
             teamFirstImage: this.props.route.params.teamFirstImage,
             teamFirstSquad: this.props.route.params.teamFirstSquad,
+            teamSecondId: this.props.route.params.teamSecondId,
             teamSecondName: this.props.route.params.teamSecondName,
             teamSecondSquad: this.props.route.params.teamSecondSquad,
             teamSecondImage: this.props.route.params.teamSecondImage,
@@ -330,51 +335,68 @@ class TossScreen extends Component {
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => {
-                            if(this.state.wonTossTeamFirst === null){
-                                Alert.alert("","Please select who won the toss")
+                            if (this.state.wonTossTeamFirst === null) {
+                                Alert.alert("", "Please select who won the toss")
                                 return
                             }
-                            if(this.state.selectBatFirst === null){
-                                Alert.alert("","Please select batting or bowling")
+                            if (this.state.selectBatFirst === null) {
+                                Alert.alert("", "Please select batting or bowling")
                                 return
                             }
                             let battingTeamName = ""
+                            let battingTeamId = ""
                             let battingTeamSquad = []
                             let bowlingTeamName = ""
                             let bowlingTeamSquad = []
-                            console.log("wonTossTeamFirst: ",this.state.wonTossTeamFirst)
-                            console.log("selectBatFirst: ",this.state.selectBatFirst)
+                            console.log("wonTossTeamFirst: ", this.state.wonTossTeamFirst)
+                            console.log("selectBatFirst: ", this.state.selectBatFirst)
 
-                            if(this.state.wonTossTeamFirst){
-                                if(this.state.selectBatFirst){
+                            if (this.state.wonTossTeamFirst) {
+                                if (this.state.selectBatFirst) {
+                                    battingTeamId = this.state.teamFirstId
                                     battingTeamName = this.state.teamFirstName
-                                    bowlingTeamName = this.state.teamSecondName
                                     battingTeamSquad = this.state.teamFirstSquad
+                                    bowlingTeamName = this.state.teamSecondName
                                     bowlingTeamSquad = this.state.teamSecondSquad
-                                }else{
+                                } else {
+                                    battingTeamId = this.state.teamSecondId
                                     battingTeamName = this.state.teamSecondName
-                                    bowlingTeamName = this.state.teamFirstName
                                     battingTeamSquad = this.state.teamSecondSquad
+                                    bowlingTeamName = this.state.teamFirstName
                                     bowlingTeamSquad = this.state.teamFirstSquad
                                 }
-                            }else{
-                                if(this.state.selectBatFirst){
+                            } else {
+                                if (this.state.selectBatFirst) {
+                                    battingTeamId = this.state.teamSecondId
                                     battingTeamName = this.state.teamSecondName
-                                    bowlingTeamName = this.state.teamFirstName
                                     battingTeamSquad = this.state.teamSecondSquad
+                                    bowlingTeamName = this.state.teamFirstName
                                     bowlingTeamSquad = this.state.teamFirstSquad
-                                }else{
+                                } else {
+                                    battingTeamId = this.state.teamFirstId
                                     battingTeamName = this.state.teamFirstName
-                                    bowlingTeamName = this.state.teamSecondName
                                     battingTeamSquad = this.state.teamFirstSquad
+                                    bowlingTeamName = this.state.teamSecondName
                                     bowlingTeamSquad = this.state.teamSecondSquad
                                 }
                             }
-                            this.props.navigation.navigate("StartInningScreen",{
-                                battingTeamName:battingTeamName,
-                                bowlingTeamName:bowlingTeamName,
-                                battingTeamSquad:battingTeamSquad,
-                                bowlingTeamSquad:bowlingTeamSquad,
+                            let path = "/liveMatchList/" + this.state.firebaseID
+                            console.log("path: ", path)
+                            database()
+                                .ref(path)
+                                .update({
+                                    tossWonTeamId: this.state.wonTossTeamFirst ?
+                                        this.state.teamFirstId : this.state.teamSecondId,
+                                    batFirstTeamId: battingTeamId,
+                                })
+                                .then(() => console.log('Data updated.'));
+
+                            this.props.navigation.navigate("StartInningScreen", {
+                                firebaseID: this.state.firebaseID,
+                                battingTeamName: battingTeamName,
+                                bowlingTeamName: bowlingTeamName,
+                                battingTeamSquad: battingTeamSquad,
+                                bowlingTeamSquad: bowlingTeamSquad,
                             })
                         }}
                         style={{
