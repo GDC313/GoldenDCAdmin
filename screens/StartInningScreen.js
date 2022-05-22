@@ -32,12 +32,14 @@ class StartInningScreen extends Component {
             nonStrikerName: 'Select Non-Striker',
             isNonStrikerSelection: false,
             bowlerName: 'Select Bowler',
+            bowlerId: 0,
             selectStriker: null,
             selectNonStriker: null,
             selectBowler: null,
             isSelectBattingModel: false,
             isSelectBowlingModel: false,
             isSelectBowlingStyleModel: false,
+            isSelectBowlingStyleName: "",
             isSelectBowlingStyleRightArmFast: false,
             isSelectBowlingStyleRightArmMedium: false,
             isSelectBowlingStyleLeftArmFast: false,
@@ -47,6 +49,72 @@ class StartInningScreen extends Component {
             isSelectBowlingStyleRightArmOffBreak: false,
             isSelectBowlingStyleRightArmLrgBreak: false,
         }
+    }
+
+    updateBowlingIndex(list, selectedIndex, isBowlingStyle) {
+        let path = "/liveMatchList/" + this.state.firebaseID
+        console.log("playerIndexInFirstSquad: ", JSON.stringify(selectedIndex))
+        console.log("list[selectedIndex].id: ", JSON.stringify(list))
+
+        database().ref(path)
+            .orderByValue()
+            .once('value')
+            .then((result) => {
+                let resultJson = JSON.parse(JSON.stringify(result))
+                let selectedId = 0;
+                if(isBowlingStyle){
+                    selectedId = selectedIndex
+                }else{
+                    selectedId = list[selectedIndex].id
+                }
+                let playerIndex = resultJson.teamFirstSquad.findIndex(
+                    (item) => item.id === selectedId)
+                console.log("playerIndexInFirstSquad: ", JSON.stringify(playerIndex))
+                if (playerIndex === -1) {
+                    playerIndex = resultJson.teamSecondSquad.findIndex(
+                        (item) => item.id === selectedId)
+                    console.log("teamSecondSquad: ", JSON.stringify(playerIndex))
+                    if (isBowlingStyle) {
+                        resultJson.teamSecondSquad[playerIndex].bowlingStyle = this.state.isSelectBowlingStyleName
+                    } else {
+                        resultJson.teamSecondSquad.filter((item) => {
+                            item.bowlingIndex = 0
+                        })
+                        resultJson.teamSecondSquad[playerIndex].bowlingIndex = 1
+                    }
+
+                } else {
+                    if (isBowlingStyle) {
+                        resultJson.teamFirstSquad[playerIndex].bowlingStyle = this.state.isSelectBowlingStyleName
+                    } else {
+                        resultJson.teamFirstSquad.filter((item) => {
+                            item.bowlingIndex = 0
+                        })
+                        resultJson.teamFirstSquad[playerIndex].bowlingIndex = 1
+                    }
+                }
+
+                database()
+                    .ref(path)
+                    .update({
+                        teamFirstSquad: resultJson.teamFirstSquad,
+                        teamSecondSquad: resultJson.teamSecondSquad
+                    })
+                    .then((result) => console.log('Data updated.', result));
+                if (isBowlingStyle) {
+                    this.setState({
+                        isSelectBowlingStyleModel: false
+                    })
+                } else {
+                    this.setState({
+                        bowlingTeamSquad: list,
+                        bowlerName: list[selectedIndex].name,
+                        bowlerId: list[selectedIndex].id,
+                        isSelectBowlingModel: false,
+                        isSelectBowlingStyleModel: true
+                    })
+                }
+            });
     }
 
     updateBattingIndex(list, selectedIndex, isStriker) {
@@ -73,7 +141,6 @@ class StartInningScreen extends Component {
                             } else if (!isStriker && item.battingIndex === 2) {
                                 item.battingIndex = 0
                             }
-                            item.bowlingIndex = 0
                         })
                         resultJson.teamSecondSquad[playerIndex].battingIndex = position
                     }
@@ -89,7 +156,6 @@ class StartInningScreen extends Component {
                             } else if (!isStriker && item.battingIndex === 2) {
                                 item.battingIndex = 0
                             }
-                            item.bowlingIndex = 0
                         })
                         resultJson.teamFirstSquad[playerIndex].battingIndex = position
                     }
@@ -311,12 +377,7 @@ class StartInningScreen extends Component {
                                         item.isBowler = false
                                     })
                                     list[index].isBowler = !list[index].isBowler
-                                    this.setState({
-                                        bowlingTeamSquad: list,
-                                        bowlerName: list[index].name,
-                                        isSelectBowlingModel: false,
-                                        isSelectBowlingStyleModel: true
-                                    })
+                                    this.updateBowlingIndex(list, index, false)
                                 }}>
                                     <View style={{
                                         flexDirection: 'row',
@@ -420,6 +481,7 @@ class StartInningScreen extends Component {
                                     }}
                                     onPress={() => {
                                         this.setState({
+                                            isSelectBowlingStyleName: Constants.RIGHT_ARM_FAST,
                                             isSelectBowlingStyleRightArmFast: true,
                                             isSelectBowlingStyleRightArmMedium: false,
                                             isSelectBowlingStyleLeftArmFast: false,
@@ -457,6 +519,7 @@ class StartInningScreen extends Component {
                                     }}
                                     onPress={() => {
                                         this.setState({
+                                            isSelectBowlingStyleName: Constants.RIGHT_ARM_MEDIUM,
                                             isSelectBowlingStyleRightArmFast: false,
                                             isSelectBowlingStyleRightArmMedium: true,
                                             isSelectBowlingStyleLeftArmFast: false,
@@ -501,6 +564,7 @@ class StartInningScreen extends Component {
                                     }}
                                     onPress={() => {
                                         this.setState({
+                                            isSelectBowlingStyleName: Constants.RIGHT_ARM_FAST,
                                             isSelectBowlingStyleRightArmFast: false,
                                             isSelectBowlingStyleRightArmMedium: false,
                                             isSelectBowlingStyleLeftArmFast: true,
@@ -538,6 +602,7 @@ class StartInningScreen extends Component {
                                     }}
                                     onPress={() => {
                                         this.setState({
+                                            isSelectBowlingStyleName: Constants.LEFT_ARM_FAST,
                                             isSelectBowlingStyleRightArmFast: false,
                                             isSelectBowlingStyleRightArmMedium: false,
                                             isSelectBowlingStyleLeftArmFast: false,
@@ -581,6 +646,7 @@ class StartInningScreen extends Component {
                                     }}
                                     onPress={() => {
                                         this.setState({
+                                            isSelectBowlingStyleName: Constants.SLOW_LEFT_ARM_ORTHOBOX,
                                             isSelectBowlingStyleRightArmFast: false,
                                             isSelectBowlingStyleRightArmMedium: false,
                                             isSelectBowlingStyleLeftArmFast: false,
@@ -618,6 +684,7 @@ class StartInningScreen extends Component {
                                     }}
                                     onPress={() => {
                                         this.setState({
+                                            isSelectBowlingStyleName: Constants.SLOW_LEFT_ARM_CHINA_MAN,
                                             isSelectBowlingStyleRightArmFast: false,
                                             isSelectBowlingStyleRightArmMedium: false,
                                             isSelectBowlingStyleLeftArmFast: false,
@@ -661,6 +728,7 @@ class StartInningScreen extends Component {
                                     }}
                                     onPress={() => {
                                         this.setState({
+                                            isSelectBowlingStyleName: Constants.RIGHT_ARM_OFF_BREAK,
                                             isSelectBowlingStyleRightArmFast: false,
                                             isSelectBowlingStyleRightArmMedium: false,
                                             isSelectBowlingStyleLeftArmFast: false,
@@ -698,6 +766,7 @@ class StartInningScreen extends Component {
                                     }}
                                     onPress={() => {
                                         this.setState({
+                                            isSelectBowlingStyleName: Constants.RIGHT_ARM_LRG_BREAK,
                                             isSelectBowlingStyleRightArmFast: false,
                                             isSelectBowlingStyleRightArmMedium: false,
                                             isSelectBowlingStyleLeftArmFast: false,
@@ -777,11 +846,11 @@ class StartInningScreen extends Component {
                                             Alert.alert("Please select bowling style")
                                             return
                                         }
-                                        this.setState({
-                                            isSelectBowlingStyleModel: false
-                                        })
+                                        console.log("List......")
 
-
+                                        let list = JSON.parse(JSON.stringify(this.state.bowlingTeamSquad))
+                                        console.log("List: ", list.length)
+                                        this.updateBowlingIndex(list, this.state.bowlerId, true)
                                     }}
                                     style={{
                                         flex: 1
@@ -1004,16 +1073,28 @@ class StartInningScreen extends Component {
                                 return
                             }
 
-                            this.props.navigation.navigate("LiveMatchScoreUpdateScreen", {
-                                battingTeamName: this.state.battingTeamName,
-                                bowlingTeamName: this.state.bowlingTeamName,
-                                battingTeamSquadMain: this.state.battingTeamSquad,
-                                battingTeamSquad: this.state.battingTeamSquad,
-                                bowlingTeamSquad: this.state.bowlingTeamSquad,
-                                strikerName: this.state.strikerName,
-                                nonStrikerName: this.state.nonStrikerName,
-                                bowlerName: this.state.bowlerName
-                            })
+                            console.log("bowing style: ", !this.state.isSelectBowlingStyleRightArmFast &&
+                                !this.state.isSelectBowlingStyleRightArmMedium &&
+                                !this.state.isSelectBowlingStyleLeftArmFast &&
+                                !this.state.isSelectBowlingStyleLeftArmMedium &&
+                                !this.state.isSelectBowlingStyleSlowLeftArmOrthodox &&
+                                !this.state.isSelectBowlingStyleSlowLeftArmChinaman &&
+                                !this.state.isSelectBowlingStyleRightArmOffBreak &&
+                                !this.state.isSelectBowlingStyleRightArmLrgBreak)
+
+                            console.log("this.state.bowlingTeamSquad: ", this.state.bowlingTeamSquad)
+
+
+                            // this.props.navigation.navigate("LiveMatchScoreUpdateScreen", {
+                            //     battingTeamName: this.state.battingTeamName,
+                            //     bowlingTeamName: this.state.bowlingTeamName,
+                            //     battingTeamSquadMain: this.state.battingTeamSquad,
+                            //     battingTeamSquad: this.state.battingTeamSquad,
+                            //     bowlingTeamSquad: this.state.bowlingTeamSquad,
+                            //     strikerName: this.state.strikerName,
+                            //     nonStrikerName: this.state.nonStrikerName,
+                            //     bowlerName: this.state.bowlerName
+                            // })
                         }}
                         style={{
                             flex: 1,

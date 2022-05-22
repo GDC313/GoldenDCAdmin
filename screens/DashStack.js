@@ -7,6 +7,7 @@ import SplashScreen from "./SplashScreen";
 import StartMatchScreen1 from "./StartMatchScreen1";
 import MyTeams from "./MyTeams";
 import AddTeamScreen from "./AddTeamScreen";
+import LiveTeamListScreen from "./LiveTeamListScreen";
 import AddPlayerScreen from "./AddPlayerScreen";
 import TeamListScreen from "./TeamListScreen";
 import SelectCaptainWicketKeeperScreen from "./SelectCaptainWicketKeeperScreen";
@@ -62,6 +63,11 @@ export function NavigationStackScreens({navigation}) {
       <AppAuthStack.Screen
         name="AddTeamScreen"
         component={AddTeamScreen}
+        options={{headerShown: false}}
+      />
+      <AppAuthStack.Screen
+        name="LiveTeamListScreen"
+        component={LiveTeamListScreen}
         options={{headerShown: false}}
       />
       <AppAuthStack.Screen

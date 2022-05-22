@@ -57,4 +57,5 @@ export default {
   LIVE_MATCH:"Live Match",
   NO_TEAM:"No teams found",
   NO_PLAYER:"No player found",
+  REMAIN_LIVE_MATCH:"Remain Live teams",
 }
