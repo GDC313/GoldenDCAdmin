@@ -20,7 +20,9 @@ class LiveMatchScoreUpdateScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            battingTeamId: this.props.route.params.battingTeamId,
             battingTeamName: this.props.route.params.battingTeamName,
+            bowlingTeamId: this.props.route.params.bowlingTeamId,
             bowlingTeamName: this.props.route.params.bowlingTeamName,
             battingTeamSquadMain: this.props.route.params.battingTeamSquadMain,
             battingTeamSquad: this.props.route.params.battingTeamSquad,
@@ -106,7 +108,8 @@ class LiveMatchScoreUpdateScreen extends Component {
                 if (this.state.currentOverBowl === 6) {
                     Alert.alert("", "Over completed",
                         [
-                            { text: "Select bowler", onPress: () => {
+                            {
+                                text: "Select bowler", onPress: () => {
                                     this.setState({
                                         isSelectBowlingModel: true
                                     })
@@ -165,7 +168,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                             fontFamily: fontStyle.MontserratBold,
                             fontSize: 20,
                             color: colors.WHITE
-                        }}>{Constants.LIVE_MATCH}</Text>
+                        }}>{this.state.battingTeamName}</Text>
                 </View>
 
                 <Modal

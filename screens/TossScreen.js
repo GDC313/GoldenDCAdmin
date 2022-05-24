@@ -345,6 +345,7 @@ class TossScreen extends Component {
                             }
                             let battingTeamName = ""
                             let battingTeamId = ""
+                            let bowlingTeamId = ""
                             let battingTeamSquad = []
                             let bowlingTeamName = ""
                             let bowlingTeamSquad = []
@@ -356,12 +357,14 @@ class TossScreen extends Component {
                                     battingTeamId = this.state.teamFirstId
                                     battingTeamName = this.state.teamFirstName
                                     battingTeamSquad = this.state.teamFirstSquad
+                                    bowlingTeamId = this.state.teamSecondId
                                     bowlingTeamName = this.state.teamSecondName
                                     bowlingTeamSquad = this.state.teamSecondSquad
                                 } else {
                                     battingTeamId = this.state.teamSecondId
                                     battingTeamName = this.state.teamSecondName
                                     battingTeamSquad = this.state.teamSecondSquad
+                                    bowlingTeamId = this.state.teamFirstId
                                     bowlingTeamName = this.state.teamFirstName
                                     bowlingTeamSquad = this.state.teamFirstSquad
                                 }
@@ -370,12 +373,14 @@ class TossScreen extends Component {
                                     battingTeamId = this.state.teamSecondId
                                     battingTeamName = this.state.teamSecondName
                                     battingTeamSquad = this.state.teamSecondSquad
+                                    bowlingTeamId = this.state.teamFirstId
                                     bowlingTeamName = this.state.teamFirstName
                                     bowlingTeamSquad = this.state.teamFirstSquad
                                 } else {
                                     battingTeamId = this.state.teamFirstId
                                     battingTeamName = this.state.teamFirstName
                                     battingTeamSquad = this.state.teamFirstSquad
+                                    bowlingTeamId = this.state.teamSecondId
                                     bowlingTeamName = this.state.teamSecondName
                                     bowlingTeamSquad = this.state.teamSecondSquad
                                 }
@@ -393,7 +398,9 @@ class TossScreen extends Component {
 
                             this.props.navigation.navigate("StartInningScreen", {
                                 firebaseID: this.state.firebaseID,
+                                battingTeamId: battingTeamId,
                                 battingTeamName: battingTeamName,
+                                bowlingTeamId: bowlingTeamId,
                                 bowlingTeamName: bowlingTeamName,
                                 battingTeamSquad: battingTeamSquad,
                                 bowlingTeamSquad: bowlingTeamSquad,
