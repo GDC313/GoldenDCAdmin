@@ -1129,7 +1129,9 @@ class StartInningScreen extends Component {
                                         battingTeamSquad: this.state.battingTeamSquad,
                                         bowlingTeamSquad: this.state.bowlingTeamSquad,
                                         strikerName: strikerPlayer.name,
+                                        strikerId: strikerPlayer.id,
                                         nonStrikerName: nonStrikerPlayer.name,
+                                        nonStrikerId: nonStrikerPlayer.id,
                                         bowlerName: bowlerPlayer.name,
                                         bowlerId: bowlerPlayer.id,
                                     })
