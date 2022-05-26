@@ -1,5 +1,6 @@
 export default {
     PRIMARY_COLOR: '#76B043',
+    PRIMARY_COLOR_LIGHT: '#F2F8ED',
     STATUS_BAR_COLOR: '#024f27',
     YELLOW_COLOR: '#FDF22A',
     ORANGE_COLOR: '#FDB913',

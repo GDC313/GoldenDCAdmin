@@ -15,11 +15,13 @@ import {Divider} from "react-native-elements";
 import colors from "../styles/colors";
 import fontStyle from "../styles/fontStyle";
 import Constants from "../styles/Constants";
+import database from "@react-native-firebase/database";
 
 class LiveMatchScoreUpdateScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            firebaseID: this.props.route.params.firebaseID,
             battingTeamId: this.props.route.params.battingTeamId,
             battingTeamName: this.props.route.params.battingTeamName,
             bowlingTeamId: this.props.route.params.bowlingTeamId,
@@ -56,6 +58,7 @@ class LiveMatchScoreUpdateScreen extends Component {
             wickets: 0,
             totalOvers: 20,
             overs: 1,
+            wonToss: 1,
             bowlCount: 0,
             currentOverRun: [],
             currentOverBowl: 0,
@@ -85,6 +88,37 @@ class LiveMatchScoreUpdateScreen extends Component {
             currentOverBowl: currentOverBowl - 1,
         })
 
+    }
+
+    componentDidMount() {
+        let path = "/liveMatchList/" + this.state.firebaseID
+        database().ref(path)
+            .orderByValue()
+            .once('value')
+            .then((result) => {
+                let resultJson = JSON.parse(JSON.stringify(result))
+                console.log("resultJson: ", resultJson)
+
+                let wonToss = ""
+                if (resultJson.tossWonTeamId === 1) {
+                    if (resultJson.batFirstTeamId === 1) {
+                        wonToss = resultJson.teamFirstName + " won the toss and elected to bat"
+                    } else {
+                        wonToss = resultJson.teamFirstName + " won the toss and elected to bowl"
+                    }
+                } else if (resultJson.tossWonTeamId === 2) {
+                    if (resultJson.batFirstTeamId === 1) {
+                        wonToss = resultJson.teamSecondName + " won the toss and elected to bat"
+                    } else {
+                        wonToss = resultJson.teamSecondName + " won the toss and elected to bowl"
+                    }
+                }
+
+                this.setState({
+                    totalOvers: resultJson.noOfOvers,
+                    wonToss: wonToss
+                })
+            })
     }
 
     updateRun(run, bowl, isBatsman1, isWideOrNoBall) {
@@ -135,7 +169,7 @@ class LiveMatchScoreUpdateScreen extends Component {
         return (
             <View style={{
                 flex: 1,
-                backgroundColor: '#ffffff',
+                backgroundColor: colors.PRIMARY_COLOR,
             }}>
                 <SafeAreaView/>
                 <StatusBar translucent backgroundColor={colors.STATUS_BAR_COLOR}/>
@@ -822,108 +856,232 @@ class LiveMatchScoreUpdateScreen extends Component {
                 <Text
                     style={{
                         fontFamily: fontStyle.MontserratBold,
-                        fontSize: 20,
-                        marginTop: 20,
+                        fontSize: 45,
+                        marginTop: 40,
                         alignSelf: 'center',
-                        color: colors.STATUS_BAR_COLOR
-                    }}>{this.state.battingTeamName}</Text>
+                        color: colors.WHITE
+                    }}>{this.state.runs + "/" + this.state.wickets}</Text>
+                <Text
+                    style={{
+                        fontFamily: fontStyle.MontserratRegular,
+                        fontSize: 18,
+                        // marginTop: 2,
+                        alignSelf: 'center',
+                        color: colors.WHITE
+                    }}>{"(" + this.state.overs + "/" + this.state.totalOvers + ")"}</Text>
 
                 <Text
                     style={{
                         fontFamily: fontStyle.MontserratRegular,
-                        fontSize: 16,
-                        marginTop: 20,
+                        fontSize: 13,
+                        marginTop: 30,
                         alignSelf: 'center',
-                        color: colors.STATUS_BAR_COLOR
-                    }}>{this.state.runs + "/" + this.state.wickets + " (" + this.state.totalOvers + ")"}</Text>
+                        color: colors.WHITE
+                    }}>{this.state.wonToss}</Text>
+
 
                 <View style={{
                     flexDirection: 'row',
                     marginTop: 20,
+                    backgroundColor: colors.WHITE
                 }}>
                     <View style={{
-                        flex: 1
+                        flex: 1,
+                        marginTop: 20,
+                        marginBottom: 20,
+                        alignSelf: 'center',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexDirection: 'row',
                     }}>
-                        <Text
+                        <ImageBackground
+                            resizeMode={'cover'}
                             style={{
-                                fontFamily: fontStyle.MontserratMedium,
-                                fontSize: 16,
+                                width: 30,
                                 alignSelf: 'center',
-                                color: colors.STATUS_BAR_COLOR
-                            }}>{this.state.strikerName}</Text>
-                        <Text
-                            style={{
-                                fontFamily: fontStyle.MontserratRegular,
-                                fontSize: 16,
-                                alignSelf: 'center',
-                                color: colors.STATUS_BAR_COLOR
-                            }}>{this.state.batsman1Runs + " (" + this.state.batsman1Bowls + ")"}</Text>
+                                height: 30,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }} source={require('../assets/images/ic_rond_gradiant.png')}>
+                            <Image
+                                resizeMode={'cover'}
+                                style={{
+                                    width: 8,
+                                    height: 24,
+                                }} source={require('../assets/images/ic_bat_2.png')}/>
+                        </ImageBackground>
+                        <View style={{
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginStart: 10,
+                        }}>
+                            <Text
+                                style={{
+                                    fontFamily: fontStyle.MontserratMedium,
+                                    fontSize: 12,
+                                    alignSelf: 'center',
+                                    color: colors.STATUS_BAR_COLOR
+                                }}>{this.state.strikerName}</Text>
+                            <Text
+                                style={{
+                                    fontFamily: fontStyle.MontserratBold,
+                                    fontSize: 14,
+                                    alignSelf: 'center',
+                                    color: colors.STATUS_BAR_COLOR
+                                }}>{this.state.batsman1Runs + "(" + this.state.batsman1Bowls + ")"}</Text>
+                        </View>
                     </View>
 
                     <View style={{
-                        flex: 1
+                        marginTop: 10,
+                        marginBottom: 10,
+                        flex: 1,
+                        alignSelf: 'center',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexDirection: 'row',
                     }}>
-                        <Text
+                        <ImageBackground
+                            resizeMode={'cover'}
                             style={{
-                                fontFamily: fontStyle.MontserratMedium,
-                                fontSize: 16,
+                                width: 30,
                                 alignSelf: 'center',
-                                color: colors.STATUS_BAR_COLOR
-                            }}>{this.state.nonStrikerName}</Text>
-                        <Text
-                            style={{
-                                fontFamily: fontStyle.MontserratRegular,
-                                fontSize: 16,
-                                alignSelf: 'center',
-                                color: colors.STATUS_BAR_COLOR
-                            }}>{this.state.batsman2Runs + " (" + this.state.batsman2Bowls + ")"}</Text>
+                                height: 30,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }} source={require('../assets/images/ic_rond_gradiant.png')}>
+                            <Image
+                                resizeMode={'cover'}
+                                style={{
+                                    width: 8,
+                                    height: 24,
+                                }} source={require('../assets/images/ic_bat_2.png')}/>
+                        </ImageBackground>
+                        <View style={{
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginStart: 10,
+                        }}>
+                            <Text
+                                style={{
+                                    fontFamily: fontStyle.MontserratMedium,
+                                    fontSize: 12,
+                                    alignSelf: 'center',
+                                    color: colors.STATUS_BAR_COLOR
+                                }}>{this.state.nonStrikerName}</Text>
+                            <Text
+                                style={{
+                                    fontFamily: fontStyle.MontserratBold,
+                                    fontSize: 14,
+                                    alignSelf: 'center',
+                                    color: colors.STATUS_BAR_COLOR
+                                }}>{this.state.batsman2Runs + "(" + this.state.batsman2Bowls + ")"}</Text>
+                        </View>
                     </View>
                 </View>
 
                 <View style={{
                     flexDirection: 'row',
-                    marginTop: 30,
+                    backgroundColor: colors.PRIMARY_COLOR_LIGHT,
                     alignItems: 'center',
                     justifyContent: 'center'
                 }}>
-                    <Text
-                        style={{
-                            textAlign: 'center',
-                            flex: 1,
-                            fontFamily: fontStyle.MontserratMedium,
-                            fontSize: 16,
-                            alignSelf: 'center',
-                            color: colors.STATUS_BAR_COLOR
-                        }}>{this.state.bowlerName}</Text>
+                    <View style={{
+                        marginTop: 20,
+                        marginBottom: 20,
+                        flex: 1,
+                        alignSelf: 'center',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexDirection: 'row',
+                    }}>
 
-                    <Text
-                        style={{
-                            textAlign: 'center',
-                            flex: 1,
-                            fontFamily: fontStyle.MontserratRegular,
-                            fontSize: 16,
-                            alignSelf: 'center',
-                            color: colors.STATUS_BAR_COLOR
-                        }}>{"0." + this.state.currentOverBowl + " - 0 - 0 - 0"}</Text>
+                        <ImageBackground
+                            resizeMode={'cover'}
+                            style={{
+                                width: 30,
+                                alignSelf: 'center',
+                                height: 30,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }} source={require('../assets/images/ic_rond_gradiant.png')}>
+                            <Image
+                                resizeMode={'cover'}
+                                style={{
+                                    width: 8,
+                                    height: 24,
+                                }} source={require('../assets/images/ic_bat_2.png')}/>
+                        </ImageBackground>
+                        <Text
+                            style={{
+                                marginStart: 10,
+                                fontFamily: fontStyle.MontserratMedium,
+                                fontSize: 12,
+                                color: colors.STATUS_BAR_COLOR
+                            }}>{this.state.bowlerName}</Text>
+                    </View>
+                    <View style={{
+                        flex: 1,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexDirection: 'row',
+                    }}>
+                        <Text
+                            style={{
+                                textAlign: 'center',
+                                fontFamily: fontStyle.MontserratBold,
+                                fontSize: 14,
+                                alignSelf: 'center',
+                                color: colors.STATUS_BAR_COLOR
+                            }}>{"0." + this.state.currentOverBowl + " -"}</Text>
+                        <Text
+                            style={{
+                                textAlign: 'center',
+                                fontFamily: fontStyle.MontserratBold,
+                                fontSize: 14,
+                                alignSelf: 'center',
+                                color: colors.STATUS_BAR_COLOR
+                            }}>{" 0 -"}</Text>
+                        <Text
+                            style={{
+                                textAlign: 'center',
+                                fontFamily: fontStyle.MontserratBold,
+                                fontSize: 14,
+                                alignSelf: 'center',
+                                color: colors.STATUS_BAR_COLOR
+                            }}>{" 0 -"}</Text>
+                        <Text
+                            style={{
+                                textAlign: 'center',
+                                fontFamily: fontStyle.MontserratBold,
+                                fontSize: 14,
+                                alignSelf: 'center',
+                                color: colors.STATUS_BAR_COLOR
+                            }}>{" 0"}</Text>
+
+                    </View>
                 </View>
-                <View>
+                <View style={{
+                    backgroundColor: colors.PRIMARY_COLOR_LIGHT
+                }}>
                     <FlatList
                         showsHorizontalScrollIndicator={false}
                         horizontal={true}
                         style={{
+                            backgroundColor: colors.PRIMARY_COLOR_LIGHT,
                             height: 60,
                         }}
                         contentContainerStyle={{
                             width: '100%',
                             height: 40,
-                            marginTop: 16,
                             marginStart: 20,
-                            backgroundColor: colors.WHITE,
+                            backgroundColor: colors.PRIMARY_COLOR_LIGHT,
                         }}
                         data={this.state.currentOverRun}
                         renderItem={({item, index}) => (
                             <View style={{
                                 width: "16%",
+                                backgroundColor: colors.PRIMARY_COLOR_LIGHT
                             }}>
                                 <View style={{
                                     flexDirection: 'column',
@@ -947,11 +1105,13 @@ class LiveMatchScoreUpdateScreen extends Component {
                 </View>
 
 
-                <View>
+                <View style={{
+                    flexDirection: 'row',
+                }}>
                     <View style={{
-                        flexDirection: 'row',
-                        width: "90%",
-                        marginTop: 20,
+                        width: '28%',
+                        flexDirection: 'column',
+                        backgroundColor: colors.WHITE,
                         alignSelf: 'center'
                     }}>
                         <TouchableOpacity
@@ -959,20 +1119,209 @@ class LiveMatchScoreUpdateScreen extends Component {
                                 this.updateRun(0, 1, true, false)
                             }}
                             style={{
-                                flex: 1,
-                                padding: 10,
+                                width: '100%',
+                                padding: "15%",
                                 borderWidth: 1,
-                                borderColor: colors.STATUS_BAR_COLOR,
+                                borderColor: colors.PRIMARY_COLOR_LIGHT,
                             }}>
                             <Text
                                 style={{
                                     textAlign: 'center',
-                                    fontFamily: fontStyle.MontserratMedium,
-                                    fontSize: 16,
+                                    fontFamily: fontStyle.MontserratBold,
+                                    fontSize: 25,
                                     alignSelf: 'center',
                                     color: colors.STATUS_BAR_COLOR
-                                }}>{0}</Text>
+                                }}>{0}
+                            </Text>
                         </TouchableOpacity>
+
+                        <TouchableOpacity
+                            onPress={() => {
+                                this.updateRun(3, 1, true, false)
+                            }}
+                            style={{
+                                width: '100%',
+                                padding: "15%",
+                                borderWidth: 1,
+                                borderColor: colors.PRIMARY_COLOR_LIGHT,
+                            }}>
+                            <Text
+                                style={{
+                                    textAlign: 'center',
+                                    fontFamily: fontStyle.MontserratBold,
+                                    fontSize: 25,
+                                    alignSelf: 'center',
+                                    color: colors.STATUS_BAR_COLOR
+                                }}>{3}
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            onPress={() => {
+                                this.updateRun(1, 1, true, false)
+                            }}
+                            style={{
+                                width: '100%',
+                                padding: "15%",
+                                borderWidth: 1,
+                                borderColor: colors.PRIMARY_COLOR_LIGHT,
+                            }}>
+                            <Text
+                                style={{
+                                    textAlign: 'center',
+                                    fontFamily: fontStyle.MontserratBold,
+                                    fontSize: 25,
+                                    alignSelf: 'center',
+                                    color: colors.STATUS_BAR_COLOR
+                                }}>{"WD"}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={{
+                        width: '28%',
+                        flexDirection: 'column',
+                        backgroundColor: colors.WHITE,
+                        alignSelf: 'center'
+                    }}>
+                        <TouchableOpacity
+                            onPress={() => {
+                                this.updateRun(1, 1, true, false)
+                            }}
+                            style={{
+                                width: '100%',
+                                padding: "15%",
+                                borderWidth: 1,
+                                borderColor: colors.PRIMARY_COLOR_LIGHT,                            }}>
+                            <Text
+                                style={{
+                                    textAlign: 'center',
+                                    fontFamily: fontStyle.MontserratBold,
+                                    fontSize: 25,
+                                    alignSelf: 'center',
+                                    color: colors.STATUS_BAR_COLOR
+                                }}>{1}
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            onPress={() => {
+                                this.updateRun(4, 1, true, false)
+                            }}
+                            style={{
+                                width: '100%',
+                                padding: "15%",
+                                borderWidth: 1,
+                                borderColor: colors.PRIMARY_COLOR_LIGHT,                            }}>
+                            <Text
+                                style={{
+                                    textAlign: 'center',
+                                    fontFamily: fontStyle.MontserratBold,
+                                    fontSize: 25,
+                                    alignSelf: 'center',
+                                    color: colors.STATUS_BAR_COLOR
+                                }}>{4}
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            onPress={() => {
+                                this.updateRun(1, 1, true, false)
+                            }}
+                            style={{
+                                width: '100%',
+                                padding: "15%",
+                                borderWidth: 1,
+                                borderColor: colors.PRIMARY_COLOR_LIGHT,
+                            }}>
+                            <Text
+                                style={{
+                                    textAlign: 'center',
+                                    fontFamily: fontStyle.MontserratBold,
+                                    fontSize: 25,
+                                    alignSelf: 'center',
+                                    color: colors.STATUS_BAR_COLOR
+                                }}>{"NB"}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{
+                        width: '28%',
+                        flexDirection: 'column',
+                        backgroundColor: colors.WHITE,
+                        alignSelf: 'center'
+                    }}>
+                        <TouchableOpacity
+                            onPress={() => {
+                                this.updateRun(2, 1, true, false)
+                            }}
+                            style={{
+                                width: '100%',
+                                padding: "15%",
+                                borderWidth: 1,
+                                borderColor: colors.PRIMARY_COLOR_LIGHT,                            }}>
+                            <Text
+                                style={{
+                                    textAlign: 'center',
+                                    fontFamily: fontStyle.MontserratBold,
+                                    fontSize: 25,
+                                    alignSelf: 'center',
+                                    color: colors.STATUS_BAR_COLOR
+                                }}>{2}
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            onPress={() => {
+                                this.updateRun(6, 1, true, false)
+                            }}
+                            style={{
+                                width: '100%',
+                                padding: "15%",
+                                borderWidth: 1,
+                                borderColor: colors.PRIMARY_COLOR_LIGHT,                            }}>
+                            <Text
+                                style={{
+                                    textAlign: 'center',
+                                    fontFamily: fontStyle.MontserratBold,
+                                    fontSize: 25,
+                                    alignSelf: 'center',
+                                    color: colors.STATUS_BAR_COLOR
+                                }}>{6}
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            onPress={() => {
+                                this.updateRun(0, 1, true, false)
+                            }}
+                            style={{
+                                width: '100%',
+                                padding: "15%",
+                                borderWidth: 1,
+                                borderColor: colors.PRIMARY_COLOR_LIGHT,                            }}>
+                            <Text
+                                style={{
+                                    textAlign: 'center',
+                                    fontFamily: fontStyle.MontserratBold,
+                                    fontSize: 25,
+                                    alignSelf: 'center',
+                                    color: colors.STATUS_BAR_COLOR
+                                }}>{"BYE"}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+
+                <View>
+                    <View style={{
+                        flexDirection: 'row',
+                        width: "90%",
+                        backgroundColor: colors.WHITE,
+                        marginTop: 20,
+                        alignSelf: 'center'
+                    }}>
                         <TouchableOpacity
                             onPress={() => {
                                 this.updateRun(1, 1, true, false)
