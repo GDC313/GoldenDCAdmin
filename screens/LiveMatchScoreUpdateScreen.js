@@ -1109,7 +1109,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                     flexDirection: 'row',
                 }}>
                     <View style={{
-                        width: '28%',
+                        width: '25%',
                         flexDirection: 'column',
                         backgroundColor: colors.WHITE,
                         alignSelf: 'center'
@@ -1120,7 +1120,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                             }}
                             style={{
                                 width: '100%',
-                                padding: "15%",
+                                padding: "17%",
                                 borderWidth: 1,
                                 borderColor: colors.PRIMARY_COLOR_LIGHT,
                             }}>
@@ -1141,7 +1141,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                             }}
                             style={{
                                 width: '100%',
-                                padding: "15%",
+                                padding: "17%",
                                 borderWidth: 1,
                                 borderColor: colors.PRIMARY_COLOR_LIGHT,
                             }}>
@@ -1158,11 +1158,11 @@ class LiveMatchScoreUpdateScreen extends Component {
 
                         <TouchableOpacity
                             onPress={() => {
-                                this.updateRun(1, 1, true, false)
+                                this.updateRun(1, 1, true, true)
                             }}
                             style={{
                                 width: '100%',
-                                padding: "15%",
+                                padding: "17%",
                                 borderWidth: 1,
                                 borderColor: colors.PRIMARY_COLOR_LIGHT,
                             }}>
@@ -1179,7 +1179,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                     </View>
 
                     <View style={{
-                        width: '28%',
+                        width: '25%',
                         flexDirection: 'column',
                         backgroundColor: colors.WHITE,
                         alignSelf: 'center'
@@ -1190,9 +1190,10 @@ class LiveMatchScoreUpdateScreen extends Component {
                             }}
                             style={{
                                 width: '100%',
-                                padding: "15%",
+                                padding: "17%",
                                 borderWidth: 1,
-                                borderColor: colors.PRIMARY_COLOR_LIGHT,                            }}>
+                                borderColor: colors.PRIMARY_COLOR_LIGHT,
+                            }}>
                             <Text
                                 style={{
                                     textAlign: 'center',
@@ -1210,9 +1211,10 @@ class LiveMatchScoreUpdateScreen extends Component {
                             }}
                             style={{
                                 width: '100%',
-                                padding: "15%",
+                                padding: "17%",
                                 borderWidth: 1,
-                                borderColor: colors.PRIMARY_COLOR_LIGHT,                            }}>
+                                borderColor: colors.PRIMARY_COLOR_LIGHT,
+                            }}>
                             <Text
                                 style={{
                                     textAlign: 'center',
@@ -1226,11 +1228,11 @@ class LiveMatchScoreUpdateScreen extends Component {
 
                         <TouchableOpacity
                             onPress={() => {
-                                this.updateRun(1, 1, true, false)
+                                this.updateRun(1, 1, true, true)
                             }}
                             style={{
                                 width: '100%',
-                                padding: "15%",
+                                padding: "17%",
                                 borderWidth: 1,
                                 borderColor: colors.PRIMARY_COLOR_LIGHT,
                             }}>
@@ -1246,7 +1248,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                         </TouchableOpacity>
                     </View>
                     <View style={{
-                        width: '28%',
+                        width: '25%',
                         flexDirection: 'column',
                         backgroundColor: colors.WHITE,
                         alignSelf: 'center'
@@ -1257,9 +1259,10 @@ class LiveMatchScoreUpdateScreen extends Component {
                             }}
                             style={{
                                 width: '100%',
-                                padding: "15%",
+                                padding: "17%",
                                 borderWidth: 1,
-                                borderColor: colors.PRIMARY_COLOR_LIGHT,                            }}>
+                                borderColor: colors.PRIMARY_COLOR_LIGHT,
+                            }}>
                             <Text
                                 style={{
                                     textAlign: 'center',
@@ -1277,9 +1280,10 @@ class LiveMatchScoreUpdateScreen extends Component {
                             }}
                             style={{
                                 width: '100%',
-                                padding: "15%",
+                                padding: "17%",
                                 borderWidth: 1,
-                                borderColor: colors.PRIMARY_COLOR_LIGHT,                            }}>
+                                borderColor: colors.PRIMARY_COLOR_LIGHT,
+                            }}>
                             <Text
                                 style={{
                                     textAlign: 'center',
@@ -1297,9 +1301,10 @@ class LiveMatchScoreUpdateScreen extends Component {
                             }}
                             style={{
                                 width: '100%',
-                                padding: "15%",
+                                padding: "17%",
                                 borderWidth: 1,
-                                borderColor: colors.PRIMARY_COLOR_LIGHT,                            }}>
+                                borderColor: colors.PRIMARY_COLOR_LIGHT,
+                            }}>
                             <Text
                                 style={{
                                     textAlign: 'center',
@@ -1311,122 +1316,32 @@ class LiveMatchScoreUpdateScreen extends Component {
                             </Text>
                         </TouchableOpacity>
                     </View>
-                </View>
 
-
-                <View>
                     <View style={{
-                        flexDirection: 'row',
-                        width: "90%",
+                        width: '25%',
+                        flexDirection: 'column',
                         backgroundColor: colors.WHITE,
-                        marginTop: 20,
                         alignSelf: 'center'
                     }}>
-                        <TouchableOpacity
-                            onPress={() => {
-                                this.updateRun(1, 1, true, false)
-                            }}
-                            style={{
-                                flex: 1,
-                                padding: 10,
-                                borderWidth: 1,
-                                borderColor: colors.STATUS_BAR_COLOR,
-                            }}>
-                            <Text
-                                style={{
-                                    textAlign: 'center',
-                                    fontFamily: fontStyle.MontserratMedium,
-                                    fontSize: 16,
-                                    alignSelf: 'center',
-                                    color: colors.STATUS_BAR_COLOR
-                                }}>{1}</Text>
-                        </TouchableOpacity>
-
                         <TouchableOpacity
                             onPress={() => {
                                 this.updateRun(2, 1, true, false)
                             }}
                             style={{
-                                flex: 1,
-                                padding: 10,
+                                width: '100%',
+                                padding: "13%",
                                 borderWidth: 1,
-                                borderColor: colors.STATUS_BAR_COLOR,
+                                borderColor: colors.PRIMARY_COLOR_LIGHT,
                             }}>
                             <Text
                                 style={{
                                     textAlign: 'center',
-                                    fontFamily: fontStyle.MontserratMedium,
-                                    fontSize: 16,
+                                    fontFamily: fontStyle.MontserratBold,
+                                    fontSize: 18,
                                     alignSelf: 'center',
                                     color: colors.STATUS_BAR_COLOR
-                                }}>{2}</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            onPress={() => {
-                                this.updateRun(3, 1, true, false)
-                            }}
-                            style={{
-                                flex: 1,
-                                padding: 10,
-                                borderWidth: 1,
-                                borderColor: colors.STATUS_BAR_COLOR,
-                            }}>
-                            <Text
-                                style={{
-                                    textAlign: 'center',
-                                    fontFamily: fontStyle.MontserratMedium,
-                                    fontSize: 16,
-                                    alignSelf: 'center',
-                                    color: colors.STATUS_BAR_COLOR
-                                }}>{3}</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    <View style={{
-                        flexDirection: 'row',
-                        width: "90%",
-                        alignSelf: 'center'
-                    }}>
-
-                        <TouchableOpacity
-                            onPress={() => {
-                                this.updateRun(4, 1, true, false)
-                            }}
-                            style={{
-                                flex: 1,
-                                padding: 10,
-                                borderWidth: 1,
-                                borderColor: colors.STATUS_BAR_COLOR,
-                            }}>
-                            <Text
-                                style={{
-                                    textAlign: 'center',
-                                    fontFamily: fontStyle.MontserratMedium,
-                                    fontSize: 16,
-                                    alignSelf: 'center',
-                                    color: colors.STATUS_BAR_COLOR
-                                }}>{4}</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            onPress={() => {
-                                this.updateRun(6, 1, true, false)
-                            }}
-                            style={{
-                                flex: 1,
-                                padding: 10,
-                                borderWidth: 1,
-                                borderColor: colors.STATUS_BAR_COLOR,
-                            }}>
-                            <Text
-                                style={{
-                                    textAlign: 'center',
-                                    fontFamily: fontStyle.MontserratMedium,
-                                    fontSize: 16,
-                                    alignSelf: 'center',
-                                    color: colors.STATUS_BAR_COLOR
-                                }}>{6}</Text>
+                                }}>{"UNDO"}
+                            </Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
@@ -1434,155 +1349,64 @@ class LiveMatchScoreUpdateScreen extends Component {
                                 this.updateRun(5, 1, true, false)
                             }}
                             style={{
-                                flex: 1,
-                                padding: 10,
+                                width: '100%',
+                                padding: "13%",
                                 borderWidth: 1,
-                                borderColor: colors.STATUS_BAR_COLOR,
+                                borderColor: colors.PRIMARY_COLOR_LIGHT,
                             }}>
                             <Text
                                 style={{
                                     textAlign: 'center',
-                                    fontFamily: fontStyle.MontserratMedium,
-                                    fontSize: 16,
+                                    fontFamily: fontStyle.MontserratBold,
+                                    fontSize: 18,
                                     alignSelf: 'center',
                                     color: colors.STATUS_BAR_COLOR
-                                }}>{5}</Text>
+                                }}>{"5,7"}
+                            </Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
                             onPress={() => {
-                                this.updateRun(7, 1, true, false)
+                                this.updateRun(0, 1, true, false)
                             }}
                             style={{
-                                flex: 1,
-                                padding: 10,
+                                width: '100%',
+                                padding: "13%",
                                 borderWidth: 1,
-                                borderColor: colors.STATUS_BAR_COLOR,
+                                borderColor: colors.PRIMARY_COLOR_LIGHT,
                             }}>
                             <Text
                                 style={{
                                     textAlign: 'center',
-                                    fontFamily: fontStyle.MontserratMedium,
-                                    fontSize: 16,
+                                    fontFamily: fontStyle.MontserratBold,
+                                    fontSize: 18,
                                     alignSelf: 'center',
                                     color: colors.STATUS_BAR_COLOR
-                                }}>{7}</Text>
+                                }}>{"OUT"}
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => {
+                                this.updateRun(1, 1, true, false)
+                            }}
+                            style={{
+                                width: '100%',
+                                padding: "13%",
+                                borderWidth: 1,
+                                borderColor: colors.PRIMARY_COLOR_LIGHT,
+                            }}>
+                            <Text
+                                style={{
+                                    textAlign: 'center',
+                                    fontFamily: fontStyle.MontserratBold,
+                                    fontSize: 18,
+                                    alignSelf: 'center',
+                                    color: colors.STATUS_BAR_COLOR
+                                }}>{"LB"}
+                            </Text>
                         </TouchableOpacity>
                     </View>
-                    <View style={{
-                        flexDirection: 'row',
-                        width: "90%",
-                        alignSelf: 'center'
-                    }}>
-
-                        <TouchableOpacity
-                            onPress={() => {
-                                this.updateRun(1, 1, true, true)
-                            }}
-                            style={{
-                                flex: 1,
-                                padding: 10,
-                                borderWidth: 1,
-                                borderColor: colors.STATUS_BAR_COLOR,
-                            }}>
-                            <Text
-                                style={{
-                                    textAlign: 'center',
-                                    fontFamily: fontStyle.MontserratMedium,
-                                    fontSize: 16,
-                                    alignSelf: 'center',
-                                    color: colors.STATUS_BAR_COLOR
-                                }}>{"WD"}</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            onPress={() => {
-                                this.updateRun(1, 1, true, true)
-                            }}
-                            style={{
-                                flex: 1,
-                                padding: 10,
-                                borderWidth: 1,
-                                borderColor: colors.STATUS_BAR_COLOR,
-                            }}>
-                            <Text
-                                style={{
-                                    textAlign: 'center',
-                                    fontFamily: fontStyle.MontserratMedium,
-                                    fontSize: 16,
-                                    alignSelf: 'center',
-                                    color: colors.STATUS_BAR_COLOR
-                                }}>{"NB"}</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            onPress={() => {
-                                // this.updateRun(1,1,true,true)
-                            }}
-                            style={{
-                                flex: 1,
-                                padding: 10,
-                                borderWidth: 1,
-                                borderColor: colors.STATUS_BAR_COLOR,
-                            }}>
-                            <Text
-                                style={{
-                                    textAlign: 'center',
-                                    fontFamily: fontStyle.MontserratMedium,
-                                    fontSize: 16,
-                                    alignSelf: 'center',
-                                    color: colors.STATUS_BAR_COLOR
-                                }}>{"B"}</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            onPress={() => {
-                                // this.updateRun(1,1,true,true)
-                            }}
-                            style={{
-                                flex: 1,
-                                padding: 10,
-                                borderWidth: 1,
-                                borderColor: colors.STATUS_BAR_COLOR,
-                            }}>
-                            <Text
-                                style={{
-                                    textAlign: 'center',
-                                    fontFamily: fontStyle.MontserratMedium,
-                                    fontSize: 16,
-                                    alignSelf: 'center',
-                                    color: colors.STATUS_BAR_COLOR
-                                }}>{"LB"}</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    <TouchableOpacity
-                        onPress={() => {
-                            if (this.state.currentOverRun.length > 0) {
-                                this.undoRun(true)
-                            }
-                            // this.updateRun(1,1,true,true)
-                        }}
-                        style={{
-                            paddingTop: 10,
-                            paddingStart: 20,
-                            paddingEnd: 20,
-                            paddingBottom: 10,
-                            marginTop: 10,
-                            alignSelf: 'center',
-                            borderWidth: 1,
-                            borderColor: colors.STATUS_BAR_COLOR,
-                        }}>
-                        <Text
-                            style={{
-                                textAlign: 'center',
-                                fontFamily: fontStyle.MontserratMedium,
-                                fontSize: 16,
-                                color: colors.STATUS_BAR_COLOR
-                            }}>{"Undo"}</Text>
-                    </TouchableOpacity>
                 </View>
-
             </View>
         );
     }
