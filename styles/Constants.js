@@ -3,6 +3,7 @@ export default {
   APP_TITLE: "Golden DC",
   HOME: "Home",
   CREATE_TEAM: "CREATE TEAM",
+  START_NEW_MATCH: "START NEW MATCH",
   START_MATCH: "START MATCH",
   START_MATCH_SMALL: "Start Match",
   SELECT_TEAM_SMALL: "Select Team",

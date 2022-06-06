@@ -36,8 +36,8 @@ class LiveTeamListScreen extends Component {
     }
 
     componentDidMount() {
-        console.log("childKeys: ",this.state.childKeys)
-        console.log("value: ",this.state.value[this.state.childKeys[0]])
+        console.log("childKeys: ", this.state.childKeys)
+        console.log("value: ", this.state.value[this.state.childKeys[0]])
         // console.log("obj: ",obj)
         // let vau = "&&N1uwbTb3VvvFSoWmt&&0"
         // let data = JSON.parse(JSON.stringify(obj))
@@ -85,7 +85,31 @@ class LiveTeamListScreen extends Component {
                             color: colors.WHITE
                         }}>{Constants.REMAIN_LIVE_MATCH}</Text>
                 </View>
+                <View style={{
+                    height: 44,
+                    backgroundColor: colors.YELLOW_COLOR,
+                    flexDirection: 'row',
+                }}>
+                    <TouchableOpacity
+                        style={{
+                            position: 'absolute',
+                            right: 0,
+                            alignSelf: 'center',
+                            marginEnd: 15,
+                            padding: 5,
+                        }}
+                        onPress={async () => {
+                            this.props.navigation.navigate("StartMatchScreen1");
+                        }}>
 
+                        <Text
+                            style={{
+                                fontFamily: fontStyle.MontserratBold,
+                                fontSize: 15,
+                                color: colors.STATUS_BAR_COLOR
+                            }}>{Constants.START_NEW_MATCH}</Text>
+                    </TouchableOpacity>
+                </View>
                 <FlatList
                     contentContainerStyle={{
                         flexGrow: 1,
@@ -94,7 +118,7 @@ class LiveTeamListScreen extends Component {
                     }}
                     data={this.state.childKeys}
                     renderItem={({item, index}) => (
-                        <TouchableOpacity onPress={()=>{
+                        <TouchableOpacity onPress={() => {
                             this.props.navigation.navigate("TossScreen", {
                                 firebaseID: item,
                                 teamFirstId: this.state.value[item].teamFirstId,
@@ -176,9 +200,9 @@ class LiveTeamListScreen extends Component {
 
                                 <View style={{
                                     flexDirection: 'row',
-                                    marginTop:10,
-                                    alignItems:'center',
-                                    justifyContent:'center'
+                                    marginTop: 10,
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
                                 }}>
                                     <Text
                                         style={{
@@ -186,7 +210,7 @@ class LiveTeamListScreen extends Component {
                                             fontSize: 14,
                                             color: colors.BLUE_COLOR
                                         }}>{
-                                        Constants.GROUND_NAME +": "
+                                        Constants.GROUND_NAME + ": "
                                     }</Text>
                                     <Text
                                         style={{
@@ -199,8 +223,8 @@ class LiveTeamListScreen extends Component {
                                 </View>
                                 <View style={{
                                     flexDirection: 'row',
-                                    alignItems:'center',
-                                    justifyContent:'center'
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
                                 }}>
                                     <Text
                                         style={{
@@ -208,7 +232,7 @@ class LiveTeamListScreen extends Component {
                                             fontSize: 14,
                                             color: colors.BLUE_COLOR
                                         }}>{
-                                        Constants.CITY +": "
+                                        Constants.CITY + ": "
                                     }</Text>
                                     <Text
                                         style={{
@@ -221,8 +245,8 @@ class LiveTeamListScreen extends Component {
                                 </View>
                                 <View style={{
                                     flexDirection: 'row',
-                                    alignItems:'center',
-                                    justifyContent:'center'
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
                                 }}>
                                     <Text
                                         style={{
@@ -230,7 +254,7 @@ class LiveTeamListScreen extends Component {
                                             fontSize: 14,
                                             color: colors.BLUE_COLOR
                                         }}>{
-                                        Constants.DATE_TIME +": "
+                                        Constants.DATE_TIME + ": "
                                     }</Text>
                                     <Text
                                         style={{
