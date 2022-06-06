@@ -31,7 +31,7 @@ class LiveMatchScoreUpdateScreen extends Component {
             bowlingTeamSquad: this.props.route.params.bowlingTeamSquad,
             strikerId: this.props.route.params.strikerId,
             strikerName: this.props.route.params.strikerName,
-            isStrikerSelection: false,
+            isStrikerSelection: true,
             nonStrikerId: this.props.route.params.nonStrikerId,
             nonStrikerName: this.props.route.params.nonStrikerName,
             isNonStrikerSelection: false,
@@ -57,11 +57,13 @@ class LiveMatchScoreUpdateScreen extends Component {
             runs: 0,
             wickets: 0,
             totalOvers: 20,
-            overs: 1,
+            overs: 0,
             wonToss: 1,
             bowlCount: 0,
             currentOverRun: [],
             currentOverBowl: 0,
+            currentOverBowlRun: 0,
+            completedOver: 0,
         }
     }
 
@@ -77,10 +79,12 @@ class LiveMatchScoreUpdateScreen extends Component {
         let batsman2Runs = this.state.batsman2Runs
         let batsman2Bowls = this.state.batsman2Bowls
         let currentOverBowl = this.state.currentOverBowl
+        let currentOverBowlRun = this.state.currentOverBowlRun
 
         this.setState({
             runs: (run - lastRun) <= 0 ? 0 : (run - lastRun),
             currentOverRun: list,
+            currentOverBowlRun: (currentOverBowlRun - lastRun) <= 0 ? 0 : (currentOverBowlRun - lastRun),
             batsman1Runs: isBatsman1 ? (batsman1Runs - lastRun) <= 0 ? 0 : (batsman1Runs - lastRun) : batsman1Runs,
             batsman2Runs: !isBatsman1 ? (batsman2Runs - lastRun) <= 0 ? 0 : (batsman2Runs - lastRun) : batsman2Runs,
             batsman1Bowls: isBatsman1 ? (batsman1Bowls - 1) : batsman1Bowls,
@@ -132,8 +136,10 @@ class LiveMatchScoreUpdateScreen extends Component {
             let batsman2Runs = this.state.batsman2Runs
             let batsman2Bowls = this.state.batsman2Bowls
             let currentOverBowl = this.state.currentOverBowl
+            let currentOverBowlRun = this.state.currentOverBowlRun
             this.setState({
                 runs: lastRuns + run,
+                currentOverBowlRun: currentOverBowlRun + run,
                 batsman1Runs: isBatsman1 ? batsman1Runs + run : batsman1Runs,
                 batsman2Runs: !isBatsman1 ? batsman2Runs + run : batsman2Runs,
                 batsman1Bowls: isBatsman1 ? batsman1Bowls + 1 : batsman1Bowls,
@@ -141,13 +147,20 @@ class LiveMatchScoreUpdateScreen extends Component {
                 currentOverRun: list,
                 currentOverBowl: currentOverBowl + 1
             }, () => {
+
+
                 if (this.state.currentOverBowl === 6) {
+
                     Alert.alert("", "Over completed",
                         [
                             {
                                 text: "Select bowler", onPress: () => {
                                     this.setState({
-                                        isSelectBowlingModel: true
+                                        isSelectBowlingModel: true,
+                                        currentOverRun: [],
+                                        isStrikerSelection: !this.state.isStrikerSelection,
+                                        overs: this.state.overs + 1,
+                                        currentOverBowl: 0,
                                     })
                                 }
                             }
@@ -293,7 +306,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                                 marginStart: 10,
                                                 flex: 1,
                                                 color: colors.STATUS_BAR_COLOR
-                                            }}>{item.playerName}</Text>
+                                            }}>{item.name}</Text>
                                         <Image
                                             resizeMode={'cover'}
                                             style={{
@@ -346,13 +359,25 @@ class LiveMatchScoreUpdateScreen extends Component {
                             renderItem={({item, index}) => (
                                 <TouchableOpacity onPress={() => {
                                     let list = this.state.bowlingTeamSquad
+                                    let lastBowler = list.filter((item) => item.isBowler)
+                                    let selectedBowler =  list[index]
+
+                                    console.log("lastSelectedBowler: ",lastBowler[0].id)
+                                    console.log("selectedBowler: ",selectedBowler.id)
+
+                                    if(selectedBowler.id === lastBowler[0].id){
+                                        // Alert.alert("You are not selected this ")
+                                        return;
+                                    }
+
                                     list.filter((item) => {
                                         item.isBowler = false
                                     })
+
                                     list[index].isBowler = !list[index].isBowler
                                     this.setState({
                                         bowlingTeamSquad: list,
-                                        bowlerName: list[index].playerName,
+                                        bowlerName: list[index].name,
                                         isSelectBowlingModel: false,
                                         isSelectBowlingStyleModel: true
                                     })
@@ -386,7 +411,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                                 marginStart: 10,
                                                 flex: 1,
                                                 color: colors.STATUS_BAR_COLOR
-                                            }}>{item.playerName}</Text>
+                                            }}>{item.name}</Text>
                                         <Image
                                             resizeMode={'cover'}
                                             style={{
@@ -868,7 +893,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                         // marginTop: 2,
                         alignSelf: 'center',
                         color: colors.WHITE
-                    }}>{"(" + this.state.overs + "/" + this.state.totalOvers + ")"}</Text>
+                    }}>{"(" + this.state.overs+"."+this.state.currentOverBowl + "/" + this.state.totalOvers + ")"}</Text>
 
                 <Text
                     style={{
@@ -921,7 +946,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                     fontSize: 12,
                                     alignSelf: 'center',
                                     color: colors.STATUS_BAR_COLOR
-                                }}>{this.state.strikerName}</Text>
+                                }}>{this.state.strikerName + (this.state.isStrikerSelection ? "*" : "")}</Text>
                             <Text
                                 style={{
                                     fontFamily: fontStyle.MontserratBold,
@@ -968,7 +993,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                     fontSize: 12,
                                     alignSelf: 'center',
                                     color: colors.STATUS_BAR_COLOR
-                                }}>{this.state.nonStrikerName}</Text>
+                                }}>{this.state.nonStrikerName +(!this.state.isStrikerSelection ? "*" : "") }</Text>
                             <Text
                                 style={{
                                     fontFamily: fontStyle.MontserratBold,
@@ -1033,7 +1058,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                 fontSize: 14,
                                 alignSelf: 'center',
                                 color: colors.STATUS_BAR_COLOR
-                            }}>{"0." + this.state.currentOverBowl + " -"}</Text>
+                            }}>{this.state.completedOver+"." + this.state.currentOverBowl + " -"}</Text>
                         <Text
                             style={{
                                 textAlign: 'center',
@@ -1041,7 +1066,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                 fontSize: 14,
                                 alignSelf: 'center',
                                 color: colors.STATUS_BAR_COLOR
-                            }}>{" 0 -"}</Text>
+                            }}>{" "+this.state.currentOverBowlRun+" -"}</Text>
                         <Text
                             style={{
                                 textAlign: 'center',
@@ -1325,7 +1350,8 @@ class LiveMatchScoreUpdateScreen extends Component {
                     }}>
                         <TouchableOpacity
                             onPress={() => {
-                                this.updateRun(2, 1, true, false)
+                                // this.updateRun(0, 0, true, false)
+                                // this.undoRun()
                             }}
                             style={{
                                 width: '100%',
