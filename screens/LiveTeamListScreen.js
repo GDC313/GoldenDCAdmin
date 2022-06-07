@@ -45,6 +45,41 @@ class LiveTeamListScreen extends Component {
 
     }
 
+    openLiveMatchScreen(item, battingTeamId, battingTeamName, bowlingTeamId, bowlingTeamName,
+                        battingTeamSquad, bowlingTeamSquad, strikerId, strikerName, nonStrikerName,
+                        nonStrikerId, bowlerName, bowlerId) {
+        this.props.navigation.navigate("LiveMatchScoreUpdateScreen", {
+            firebaseID: item,
+            battingTeamId: battingTeamId,
+            battingTeamName: battingTeamName,
+            bowlingTeamId: bowlingTeamId,
+            bowlingTeamName: bowlingTeamName,
+            battingTeamSquadMain: battingTeamSquad,
+            battingTeamSquad: battingTeamSquad,
+            bowlingTeamSquad: bowlingTeamSquad,
+            strikerId: strikerId,
+            strikerName: strikerName,
+            nonStrikerName: nonStrikerName,
+            nonStrikerId: nonStrikerId,
+            bowlerName: bowlerName,
+            bowlerId: bowlerId,
+        })
+    }
+
+    openTossScreen(item) {
+        this.props.navigation.navigate("TossScreen", {
+            firebaseID: item,
+            teamFirstId: this.state.value[item].teamFirstId,
+            teamFirstName: this.state.value[item].teamFirstName,
+            teamFirstImage: this.state.value[item].teamFirstImage,
+            teamFirstSquad: this.state.value[item].teamFirstSquad,
+            teamSecondId: this.state.value[item].teamSecondId,
+            teamSecondName: this.state.value[item].teamSecondName,
+            teamSecondSquad: this.state.value[item].teamSecondSquad,
+            teamSecondImage: this.state.value[item].teamSecondImage,
+        })
+    }
+
     render() {
         return (
             <View style={{
@@ -119,17 +154,85 @@ class LiveTeamListScreen extends Component {
                     data={this.state.childKeys}
                     renderItem={({item, index}) => (
                         <TouchableOpacity onPress={() => {
-                            this.props.navigation.navigate("TossScreen", {
-                                firebaseID: item,
-                                teamFirstId: this.state.value[item].teamFirstId,
-                                teamFirstName: this.state.value[item].teamFirstName,
-                                teamFirstImage: this.state.value[item].teamFirstImage,
-                                teamFirstSquad: this.state.value[item].teamFirstSquad,
-                                teamSecondId: this.state.value[item].teamSecondId,
-                                teamSecondName: this.state.value[item].teamSecondName,
-                                teamSecondSquad: this.state.value[item].teamSecondSquad,
-                                teamSecondImage: this.state.value[item].teamSecondImage,
-                            })
+                            console.log("item: ", this.state.value[item])
+
+                            if (this.state.value[item].tossWonTeamId !== undefined &&
+                                this.state.value[item].teamFirstId !== null &&
+                                this.state.value[item].teamFirstId >= 1) {
+
+                                let battingTeamId = 0
+                                let battingTeamName = ''
+                                let bowlingTeamId = 0
+                                let bowlingTeamName = 0
+                                let battingTeamSquad
+                                let bowlingTeamSquad
+                                let strikerId = 0
+                                let strikerName = ""
+                                let nonStrikerId = 0
+                                let nonStrikerName = ""
+                                let bowlerId = 0
+                                let bowlerName = ""
+                                if (this.state.value[item].batFirstTeamId === 1) {
+                                    battingTeamId = this.state.value[item].teamFirstId
+                                    battingTeamName = this.state.value[item].teamFirstName
+                                    battingTeamSquad = this.state.value[item].teamFirstSquad
+                                    bowlingTeamId = this.state.value[item].teamSecondId
+                                    bowlingTeamName = this.state.value[item].teamSecondName
+                                    bowlingTeamSquad = this.state.value[item].teamSecondSquad
+
+                                    let strikerItem = battingTeamSquad.filter((item) => item.battingIndex === 1)
+                                    strikerId = strikerItem[0].id
+                                    strikerName = strikerItem[0].name
+
+                                    let nonStrikerItem = battingTeamSquad.filter((item) => item.battingIndex === 2)
+                                    nonStrikerId = nonStrikerItem[0].id
+                                    nonStrikerName = nonStrikerItem[0].name
+
+                                    let bowlerItem = bowlingTeamSquad.filter((item) => item.bowlingIndex === 1)
+
+                                    if (bowlerItem !== undefined && bowlerItem !== null &&
+                                        bowlerItem.length > 0) {
+                                        bowlerId = bowlerItem[0].id
+                                        bowlerName = bowlerItem[0].name
+                                        this.openLiveMatchScreen(item, battingTeamId, battingTeamName, bowlingTeamId, bowlingTeamName,
+                                            battingTeamSquad, bowlingTeamSquad, strikerId, strikerName, nonStrikerName,
+                                            nonStrikerId, bowlerName, bowlerId)
+                                    } else {
+                                        this.openTossScreen(item)
+                                    }
+
+                                } else {
+                                    battingTeamId = this.state.value[item].teamSecondId
+                                    battingTeamName = this.state.value[item].teamSecondName
+                                    battingTeamSquad = this.state.value[item].teamSecondSquad
+                                    bowlingTeamId = this.state.value[item].teamFirstId
+                                    bowlingTeamName = this.state.value[item].teamFirstName
+                                    bowlingTeamSquad = this.state.value[item].teamFirstSquad
+
+                                    let strikerItem = battingTeamSquad.filter((item) => item.battingIndex === 1)
+                                    strikerId = strikerItem[0].id
+                                    strikerName = strikerItem[0].name
+
+                                    let nonStrikerItem = battingTeamSquad.filter((item) => item.battingIndex === 2)
+                                    nonStrikerId = nonStrikerItem[0].id
+                                    nonStrikerName = nonStrikerItem[0].name
+
+                                    let bowlerItem = bowlingTeamSquad.filter((item) => item.bowlingIndex === 1)
+                                    if (bowlerItem !== undefined && bowlerItem !== null &&
+                                        bowlerItem.length > 0) {
+                                        bowlerId = bowlerItem[0].id
+                                        bowlerName = bowlerItem[0].name
+                                        this.openLiveMatchScreen(item, battingTeamId, battingTeamName, bowlingTeamId, bowlingTeamName,
+                                            battingTeamSquad, bowlingTeamSquad, strikerId, strikerName, nonStrikerName,
+                                            nonStrikerId, bowlerName, bowlerId)
+                                    } else {
+                                        this.openTossScreen(item)
+                                    }
+                                }
+
+                            } else {
+                                this.openTossScreen(item)
+                            }
                         }}>
                             <View style={{
                                 flexDirection: 'column',
