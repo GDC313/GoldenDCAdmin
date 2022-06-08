@@ -117,8 +117,45 @@ class LiveMatchScoreUpdateScreen extends Component {
                         wonToss = resultJson.teamSecondName + " won the toss and elected to bowl"
                     }
                 }
-
+                let batsman1Runs = 0
+                let batsman2Runs = 0
+                let batsman1Bowls = 0
+                let batsman2Bowls = 0
+                let strikerPlayerIndex = resultJson.teamFirstSquad.findIndex(
+                    (item) => item.id === this.state.strikerId)
+                if (strikerPlayerIndex === -1) {
+                    strikerPlayerIndex = resultJson.teamSecondSquad.findIndex(
+                        (item) => item.id === this.state.strikerId)
+                    batsman1Runs = resultJson.teamSecondSquad[strikerPlayerIndex].run !== undefined ?
+                        resultJson.teamSecondSquad[strikerPlayerIndex].run : 0
+                    batsman1Bowls = resultJson.teamSecondSquad[strikerPlayerIndex].bowl !== undefined ?
+                        resultJson.teamSecondSquad[strikerPlayerIndex].bowl : 0
+                } else {
+                    batsman1Runs = resultJson.teamFirstSquad[strikerPlayerIndex].run !== undefined ?
+                        resultJson.teamFirstSquad[strikerPlayerIndex].run : 0
+                    batsman1Bowls = resultJson.teamFirstSquad[strikerPlayerIndex].bowl !== undefined ?
+                        resultJson.teamFirstSquad[strikerPlayerIndex].bowl : 0
+                }
+                let nonStrikerPlayerIndex = resultJson.teamFirstSquad.findIndex(
+                    (item) => item.id === this.state.nonStrikerId)
+                if (nonStrikerPlayerIndex === -1) {
+                    nonStrikerPlayerIndex = resultJson.teamSecondSquad.findIndex(
+                        (item) => item.id === this.state.nonStrikerId)
+                    batsman2Runs = resultJson.teamSecondSquad[nonStrikerPlayerIndex].run !== undefined ?
+                        resultJson.teamSecondSquad[nonStrikerPlayerIndex].run : 0
+                    batsman2Bowls = resultJson.teamFirstSquad[nonStrikerPlayerIndex].bowl !== undefined ?
+                        resultJson.teamFirstSquad[nonStrikerPlayerIndex].bowl : 0
+                } else {
+                    batsman2Runs = resultJson.teamFirstSquad[nonStrikerPlayerIndex].run !== undefined ?
+                        resultJson.teamFirstSquad[nonStrikerPlayerIndex].run : 0
+                    batsman2Bowls = resultJson.teamFirstSquad[nonStrikerPlayerIndex].bowl !== undefined ?
+                        resultJson.teamFirstSquad[nonStrikerPlayerIndex].bowl : 0
+                }
                 this.setState({
+                    batsman1Runs: batsman1Runs,
+                    batsman2Runs: batsman2Runs,
+                    batsman1Bowls: batsman1Bowls,
+                    batsman2Bowls: batsman2Bowls,
                     totalOvers: resultJson.noOfOvers,
                     wonToss: wonToss
                 })
@@ -128,7 +165,7 @@ class LiveMatchScoreUpdateScreen extends Component {
     updateRun(run, bowl, isBatsman1, isWideOrNoBall) {
         let list = this.state.currentOverRun
         let lastRuns = this.state.runs
-
+        isBatsman1 = this.state.isStrikerSelection
         if (!isWideOrNoBall) {
             list.push(run)
             let batsman1Runs = this.state.batsman1Runs
@@ -139,6 +176,8 @@ class LiveMatchScoreUpdateScreen extends Component {
             let currentOverBowlRun = this.state.currentOverBowlRun
             this.setState({
                 runs: lastRuns + run,
+                isStrikerSelection: (currentOverBowl + 1) === 6 || run === 1 || run === 3 ?
+                    !isBatsman1 : isBatsman1,
                 currentOverBowlRun: currentOverBowlRun + run,
                 batsman1Runs: isBatsman1 ? batsman1Runs + run : batsman1Runs,
                 batsman2Runs: !isBatsman1 ? batsman2Runs + run : batsman2Runs,
@@ -147,10 +186,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                 currentOverRun: list,
                 currentOverBowl: currentOverBowl + 1
             }, () => {
-
-
                 if (this.state.currentOverBowl === 6) {
-
                     Alert.alert("", "Over completed",
                         [
                             {
@@ -158,7 +194,6 @@ class LiveMatchScoreUpdateScreen extends Component {
                                     this.setState({
                                         isSelectBowlingModel: true,
                                         currentOverRun: [],
-                                        isStrikerSelection: !this.state.isStrikerSelection,
                                         overs: this.state.overs + 1,
                                         currentOverBowl: 0,
                                     })
@@ -166,7 +201,103 @@ class LiveMatchScoreUpdateScreen extends Component {
                             }
                         ]
                     )
+                } else {
+                    // out: "c Neil Rock b Craig Young",
+                    //     run: "1",
+                    //     ball: "4",
+                    //     four: "0",
+                    //     six: "0"
                 }
+                console.log("isSelectBowlingModel: ", this.state.isSelectBowlingModel)
+                console.log("strikerId: ", this.state.strikerId)
+                console.log("nonStrikerId: ", this.state.nonStrikerId)
+                console.log("batsman1Runs: ", this.state.batsman1Runs)
+                console.log("batsman2Runs: ", this.state.batsman2Runs)
+
+                let path = "/liveMatchList/" + this.state.firebaseID
+
+                database().ref(path)
+                    .orderByValue()
+                    .once('value')
+                    .then((result) => {
+                        let resultJson = JSON.parse(JSON.stringify(result))
+
+                        let strikerPlayerIndex = resultJson.teamFirstSquad.findIndex(
+                            (item) => item.id === this.state.strikerId)
+                        if (strikerPlayerIndex === -1) {
+                            strikerPlayerIndex = resultJson.teamSecondSquad.findIndex(
+                                (item) => item.id === this.state.strikerId)
+                            resultJson.teamSecondSquad[strikerPlayerIndex].run = this.state.batsman1Runs
+                            resultJson.teamSecondSquad[strikerPlayerIndex].bowl = this.state.batsman1Bowls
+                            if (run === 4) {
+                                resultJson.teamSecondSquad[strikerPlayerIndex].four =
+                                    resultJson.teamSecondSquad[strikerPlayerIndex].four !== undefined ?
+                                        resultJson.teamSecondSquad[strikerPlayerIndex].four + 1 : 0
+                            }
+                            if (run === 6) {
+                                resultJson.teamSecondSquad[strikerPlayerIndex].four =
+                                    resultJson.teamSecondSquad[strikerPlayerIndex].six !== undefined ?
+                                        resultJson.teamSecondSquad[strikerPlayerIndex].six + 1 : 0
+                            }
+                            console.log("resultJson.teamSecondSquad ", resultJson.teamSecondSquad[nonStrikerPlayerIndex])
+                        } else {
+                            resultJson.teamFirstSquad[strikerPlayerIndex].run = this.state.batsman1Runs
+                            resultJson.teamFirstSquad[strikerPlayerIndex].bowl = this.state.batsman1Bowls
+                            if (run === 4) {
+                                resultJson.teamFirstSquad[strikerPlayerIndex].four =
+                                    resultJson.teamFirstSquad[strikerPlayerIndex].four !== undefined ?
+                                        resultJson.teamFirstSquad[strikerPlayerIndex].four + 1 : 0
+                            }
+                            if (run === 6) {
+                                resultJson.teamFirstSquad[strikerPlayerIndex].four =
+                                    resultJson.teamFirstSquad[strikerPlayerIndex].six !== undefined ?
+                                        resultJson.teamFirstSquad[strikerPlayerIndex].six + 1 : 0
+                            }
+                            console.log("resultJson.teamFirstSquad ", resultJson.teamFirstSquad[strikerPlayerIndex])
+                        }
+
+                        let nonStrikerPlayerIndex = resultJson.teamFirstSquad.findIndex(
+                            (item) => item.id === this.state.nonStrikerId)
+                        if (nonStrikerPlayerIndex === -1) {
+                            nonStrikerPlayerIndex = resultJson.teamSecondSquad.findIndex(
+                                (item) => item.id === this.state.nonStrikerId)
+                            resultJson.teamSecondSquad[nonStrikerPlayerIndex].run = this.state.batsman2Runs
+                            resultJson.teamSecondSquad[strikerPlayerIndex].bowl = this.state.batsman2Bowls
+                            if (run === 4) {
+                                resultJson.teamSecondSquad[strikerPlayerIndex].four =
+                                    resultJson.teamSecondSquad[strikerPlayerIndex].four !== undefined ?
+                                        resultJson.teamSecondSquad[strikerPlayerIndex].four + 1 : 0
+                            }
+                            if (run === 6) {
+                                resultJson.teamSecondSquad[strikerPlayerIndex].four =
+                                    resultJson.teamSecondSquad[strikerPlayerIndex].six !== undefined ?
+                                        resultJson.teamSecondSquad[strikerPlayerIndex].six + 1 : 0
+                            }
+                            console.log("resultJson.teamSecondSquad ", resultJson.teamSecondSquad[nonStrikerPlayerIndex])
+                        } else {
+                            resultJson.teamFirstSquad[nonStrikerPlayerIndex].run = this.state.batsman2Runs
+                            resultJson.teamFirstSquad[nonStrikerPlayerIndex].bowl = this.state.batsman2Bowls
+                            if (run === 4) {
+                                resultJson.teamFirstSquad[nonStrikerPlayerIndex].four =
+                                    resultJson.teamFirstSquad[nonStrikerPlayerIndex].four !== undefined ?
+                                        resultJson.teamFirstSquad[nonStrikerPlayerIndex].four + 1 : 0
+                            }
+                            if (run === 6) {
+                                resultJson.teamFirstSquad[nonStrikerPlayerIndex].four =
+                                    resultJson.teamFirstSquad[nonStrikerPlayerIndex].six !== undefined ?
+                                        resultJson.teamFirstSquad[nonStrikerPlayerIndex].six + 1 : 0
+                            }
+                            console.log("resultJson.teamSecondSquad ", resultJson.teamFirstSquad[nonStrikerPlayerIndex])
+                        }
+                        database()
+                            .ref(path)
+                            .update({
+                                teamFirstSquad: resultJson.teamFirstSquad,
+                                teamSecondSquad: resultJson.teamSecondSquad
+                            })
+                            .then((result) => console.log('Data updated.', result));
+                    })
+
             })
         } else {
             list.push("WD\n" + run)
@@ -360,12 +491,12 @@ class LiveMatchScoreUpdateScreen extends Component {
                                 <TouchableOpacity onPress={() => {
                                     let list = this.state.bowlingTeamSquad
                                     let lastBowler = list.filter((item) => item.isBowler)
-                                    let selectedBowler =  list[index]
+                                    let selectedBowler = list[index]
 
-                                    console.log("lastSelectedBowler: ",lastBowler[0].id)
-                                    console.log("selectedBowler: ",selectedBowler.id)
+                                    // console.log("lastSelectedBowler: ",lastBowler)
+                                    // console.log("selectedBowler: ",selectedBowler.id)
 
-                                    if(selectedBowler.id === lastBowler[0].id){
+                                    if (selectedBowler.id === lastBowler[0].id) {
                                         // Alert.alert("You are not selected this ")
                                         return;
                                     }
@@ -893,7 +1024,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                         // marginTop: 2,
                         alignSelf: 'center',
                         color: colors.WHITE
-                    }}>{"(" + this.state.overs+"."+this.state.currentOverBowl + "/" + this.state.totalOvers + ")"}</Text>
+                    }}>{"(" + this.state.overs + "." + this.state.currentOverBowl + "/" + this.state.totalOvers + ")"}</Text>
 
                 <Text
                     style={{
@@ -993,7 +1124,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                     fontSize: 12,
                                     alignSelf: 'center',
                                     color: colors.STATUS_BAR_COLOR
-                                }}>{this.state.nonStrikerName +(!this.state.isStrikerSelection ? "*" : "") }</Text>
+                                }}>{this.state.nonStrikerName + (!this.state.isStrikerSelection ? "*" : "")}</Text>
                             <Text
                                 style={{
                                     fontFamily: fontStyle.MontserratBold,
@@ -1058,7 +1189,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                 fontSize: 14,
                                 alignSelf: 'center',
                                 color: colors.STATUS_BAR_COLOR
-                            }}>{this.state.completedOver+"." + this.state.currentOverBowl + " -"}</Text>
+                            }}>{this.state.completedOver + "." + this.state.currentOverBowl + " -"}</Text>
                         <Text
                             style={{
                                 textAlign: 'center',
@@ -1066,7 +1197,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                 fontSize: 14,
                                 alignSelf: 'center',
                                 color: colors.STATUS_BAR_COLOR
-                            }}>{" "+this.state.currentOverBowlRun+" -"}</Text>
+                            }}>{" " + this.state.currentOverBowlRun + " -"}</Text>
                         <Text
                             style={{
                                 textAlign: 'center',

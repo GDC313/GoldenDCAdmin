@@ -36,8 +36,8 @@ class LiveTeamListScreen extends Component {
     }
 
     componentDidMount() {
-        console.log("childKeys: ", this.state.childKeys)
-        console.log("value: ", this.state.value[this.state.childKeys[0]])
+        // console.log("childKeys: ", this.state.childKeys)
+        // console.log("value: ", this.state.value[this.state.childKeys[0]])
         // console.log("obj: ",obj)
         // let vau = "&&N1uwbTb3VvvFSoWmt&&0"
         // let data = JSON.parse(JSON.stringify(obj))
@@ -154,7 +154,7 @@ class LiveTeamListScreen extends Component {
                     data={this.state.childKeys}
                     renderItem={({item, index}) => (
                         <TouchableOpacity onPress={() => {
-                            console.log("item: ", this.state.value[item])
+                            // console.log("item: ", this.state.value[item])
 
                             if (this.state.value[item].tossWonTeamId !== undefined &&
                                 this.state.value[item].teamFirstId !== null &&
@@ -189,11 +189,15 @@ class LiveTeamListScreen extends Component {
                                     nonStrikerName = nonStrikerItem[0].name
 
                                     let bowlerItem = bowlingTeamSquad.filter((item) => item.bowlingIndex === 1)
-
+                                    let bowlerItemIndex = bowlingTeamSquad.findIndex((item) => item.bowlingIndex === 1)
                                     if (bowlerItem !== undefined && bowlerItem !== null &&
                                         bowlerItem.length > 0) {
                                         bowlerId = bowlerItem[0].id
                                         bowlerName = bowlerItem[0].name
+                                        bowlerItem[0].isBowler = true
+
+                                        bowlingTeamSquad[bowlerItemIndex] = bowlerItem[0]
+
                                         this.openLiveMatchScreen(item, battingTeamId, battingTeamName, bowlingTeamId, bowlingTeamName,
                                             battingTeamSquad, bowlingTeamSquad, strikerId, strikerName, nonStrikerName,
                                             nonStrikerId, bowlerName, bowlerId)
@@ -218,10 +222,14 @@ class LiveTeamListScreen extends Component {
                                     nonStrikerName = nonStrikerItem[0].name
 
                                     let bowlerItem = bowlingTeamSquad.filter((item) => item.bowlingIndex === 1)
+                                    let bowlerItemIndex = bowlingTeamSquad.findIndex((item) => item.bowlingIndex === 1)
                                     if (bowlerItem !== undefined && bowlerItem !== null &&
                                         bowlerItem.length > 0) {
                                         bowlerId = bowlerItem[0].id
                                         bowlerName = bowlerItem[0].name
+                                        bowlerItem[0].isBowler = true
+
+                                        bowlingTeamSquad[bowlerItemIndex] = bowlerItem[0]
                                         this.openLiveMatchScreen(item, battingTeamId, battingTeamName, bowlingTeamId, bowlingTeamName,
                                             battingTeamSquad, bowlingTeamSquad, strikerId, strikerName, nonStrikerName,
                                             nonStrikerId, bowlerName, bowlerId)
