@@ -87,10 +87,11 @@ class MyTeams extends Component {
         return (
             <View style={{
                 flex: 1,
-                backgroundColor: '#ffffff',
+                paddingTop:10,
+                backgroundColor: colors.PRIMARY_COLOR,
             }}>
                 <SafeAreaView/>
-                <StatusBar translucent backgroundColor={colors.STATUS_BAR_COLOR}/>
+                <StatusBar translucent backgroundColor='transparent'/>
                 <View style={{
                     height: 50,
                     marginTop: 22,
@@ -123,47 +124,62 @@ class MyTeams extends Component {
                         }}>{Constants.MY_TEAMS}
                     </Text>
                 </View>
-                <TouchableOpacity
-                    onPress={() => {
-                        this.props.navigation.navigate("AddTeamScreen", {
-                            isTeamFirstSelect: this.state.isTeamFirstSelect,
-                        });
-                    }}>
-                    <Text
-                        style={{
-                            alignSelf: 'flex-end',
-                            marginTop: 10,
-                            fontFamily: fontStyle.MontserratBold,
-                            fontSize: 12,
-                            paddingTop: 8,
-                            paddingBottom: 8,
-                            paddingStart: 20,
-                            paddingEnd: 20,
-                            borderRadius: 5,
-                            marginEnd: 10,
-                            backgroundColor: colors.STATUS_BAR_COLOR,
-                            color: colors.WHITE
-                        }}>{
-                        Constants.ADD_NEW_TEAM
-                    }</Text>
-                </TouchableOpacity>
-                {(
-                    this.state.isLoading &&
-                    <ActivityIndicator
-                        size="large"
-                        color={colors.PRIMARY_COLOR}
-                        style={{
-                            flex: 1,
-                            alignSelf: 'center',
+                <View style={{
+                    width:'100%',
+                    backgroundColor:colors.WHITE
+
+                }}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            this.props.navigation.navigate("AddTeamScreen", {
+                                isTeamFirstSelect: this.state.isTeamFirstSelect,
+                            });
                         }}
-                        animating={true}
-                    />
-                )}
+                        style={{
+                            backgroundColor:colors.WHITE,
+                            width:"40%",
+                            alignSelf:'flex-end'
+                        }}
+                    >
+                        <Text
+                            style={{
+                                alignSelf: 'flex-end',
+                                marginTop: 10,
+                                fontFamily: fontStyle.MontserratBold,
+                                fontSize: 12,
+                                paddingTop: 8,
+                                paddingBottom: 8,
+                                paddingStart: 20,
+                                paddingEnd: 20,
+                                borderRadius: 5,
+                                marginEnd: 10,
+                                backgroundColor: colors.STATUS_BAR_COLOR,
+                                color: colors.WHITE
+                            }}>{
+                            Constants.ADD_NEW_TEAM
+                        }</Text>
+                    </TouchableOpacity>
+                    {(
+                        this.state.isLoading &&
+                        <ActivityIndicator
+                            size="large"
+                            color={colors.PRIMARY_COLOR}
+                            style={{
+                                flex: 1,
+                                alignSelf: 'center',
+                            }}
+                            animating={true}
+                        />
+                    )}
+
+                </View>
+
                 {(
                     !this.state.isLoading && this.state.teamList.length <= 0 &&
                     <View style={{
                         alignSelf: 'center',
                         flex: 1,
+                        backgroundColor:colors.WHITE,
                         alignItems: 'center',
                         justifyContent: 'center',
                     }}>
@@ -181,7 +197,8 @@ class MyTeams extends Component {
                     <FlatList
                         contentContainerStyle={{
                             flexGrow: 1,
-                            marginTop: 10,
+                            backgroundColor:colors.WHITE,
+                            paddingTop: 10,
                             paddingBottom: 10
                         }}
                         data={this.state.teamList}

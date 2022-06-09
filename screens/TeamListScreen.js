@@ -189,10 +189,12 @@ class TeamListScreen extends Component {
         return (
             <View style={{
                 flex: 1,
-                backgroundColor: '#ffffff',
+                paddingTop:10,
+                backgroundColor: colors.PRIMARY_COLOR,
             }}>
                 <SafeAreaView/>
-                <StatusBar translucent backgroundColor={colors.STATUS_BAR_COLOR}/>
+                <StatusBar translucent backgroundColor='transparent'/>
+
 
                 <View style={{
                     height: 50,
@@ -289,6 +291,7 @@ class TeamListScreen extends Component {
                     <View style={{
                         alignSelf: 'center',
                         flex: 1,
+                        backgroundColor:colors.WHITE,
                         alignItems: 'center',
                         justifyContent: 'center',
                     }}>
@@ -307,7 +310,8 @@ class TeamListScreen extends Component {
                     <FlatList
                         contentContainerStyle={{
                             flexGrow: 1,
-                            marginTop: 10,
+                            paddingTop: 10,
+                            backgroundColor:colors.WHITE,
                             paddingBottom: 10,
                         }}
                         data={this.state.playerList}
@@ -394,9 +398,10 @@ class TeamListScreen extends Component {
                     !this.state.isLoading && this.state.playerList.length > 0 &&
                     <View style={{
                         flexDirection: 'row',
-                        marginStart: 20,
-                        marginEnd: 20,
-                        marginBottom: 8,
+                        paddingStart: 20,
+                        paddingEnd: 20,
+                        backgroundColor:colors.WHITE,
+                        paddingBottom: 8,
                     }}>
                         <TouchableOpacity style={{
                             flex: 1,

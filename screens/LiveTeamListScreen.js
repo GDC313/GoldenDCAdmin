@@ -84,10 +84,11 @@ class LiveTeamListScreen extends Component {
         return (
             <View style={{
                 flex: 1,
-                backgroundColor: '#ffffff',
+                paddingTop:10,
+                backgroundColor: colors.PRIMARY_COLOR,
             }}>
                 <SafeAreaView/>
-                <StatusBar translucent backgroundColor={colors.STATUS_BAR_COLOR}/>
+                <StatusBar translucent backgroundColor='transparent'/>
                 <View style={{
                     height: 50,
                     marginTop: 22,
@@ -148,7 +149,8 @@ class LiveTeamListScreen extends Component {
                 <FlatList
                     contentContainerStyle={{
                         flexGrow: 1,
-                        marginTop: 10,
+                        backgroundColor:colors.WHITE,
+                        paddingTop: 10,
                         paddingBottom: 10,
                     }}
                     data={this.state.childKeys}

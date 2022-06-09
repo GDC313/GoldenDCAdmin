@@ -767,10 +767,11 @@ class StartMatchScreen1 extends Component {
         return (
             <View style={{
                 flex: 1,
-                backgroundColor: '#ffffff',
+                paddingTop:10,
+                backgroundColor: colors.PRIMARY_COLOR,
             }}>
                 <SafeAreaView/>
-                <StatusBar translucent backgroundColor={colors.STATUS_BAR_COLOR}/>
+                <StatusBar translucent backgroundColor='transparent'/>
                 <View style={{
                     height: 50,
                     marginTop: 22,

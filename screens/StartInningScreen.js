@@ -198,10 +198,11 @@ class StartInningScreen extends Component {
         return (
             <View style={{
                 flex: 1,
-                backgroundColor: '#ffffff',
+                paddingTop:10,
+                backgroundColor: colors.PRIMARY_COLOR,
             }}>
                 <SafeAreaView/>
-                <StatusBar translucent backgroundColor={colors.STATUS_BAR_COLOR}/>
+                <StatusBar translucent backgroundColor='transparent'/>
 
                 <View style={{
                     height: 50,
@@ -891,15 +892,19 @@ class StartInningScreen extends Component {
                     style={{
                         fontFamily: fontStyle.MontserratBold,
                         fontSize: 20,
-                        marginTop: 20,
+                        paddingTop: 20,
+                        width:'100%',
+                        textAlign:'center',
+                        backgroundColor:colors.WHITE,
                         alignSelf: 'center',
                         color: colors.STATUS_BAR_COLOR
                     }}>{Constants.BATTING + " - " + this.state.battingTeamName}</Text>
                 <View style={{
                     flexDirection: 'row',
-                    marginTop: 23,
-                    marginEnd: 18,
-                    marginStart: 18,
+                    paddingTop: 23,
+                    paddingEnd: 18,
+                    paddingStart: 18,
+                    backgroundColor:colors.WHITE
                 }}>
                     <View style={{
                         backgroundColor: '#76B04315',
@@ -998,16 +1003,20 @@ class StartInningScreen extends Component {
                     style={{
                         fontFamily: fontStyle.MontserratBold,
                         fontSize: 20,
-                        marginTop: 20,
+                        paddingTop: 20,
+                        width:'100%',
+                        textAlign:'center',
+                        backgroundColor:colors.WHITE,
                         alignSelf: 'center',
                         color: colors.STATUS_BAR_COLOR
                     }}>{Constants.BOWLING + " - " + this.state.bowlingTeamName}</Text>
                 <View style={{
                     flex: 1,
                     flexDirection: 'row',
-                    marginTop: 23,
-                    marginEnd: 18,
-                    marginStart: 18,
+                    backgroundColor:colors.WHITE,
+                    paddingTop: 23,
+                    paddingEnd: 18,
+                    paddingStart: 18,
                 }}>
                     <View style={{
                         backgroundColor: '#76B04315',
@@ -1058,9 +1067,10 @@ class StartInningScreen extends Component {
                 </View>
                 <View style={{
                     flexDirection: 'row',
-                    marginStart: 20,
-                    marginEnd: 20,
-                    marginBottom: 8,
+                    paddingStart: 20,
+                    paddingEnd: 20,
+                    paddingBottom: 8,
+                    backgroundColor:colors.WHITE
                 }}>
                     <TouchableOpacity
                         onPress={() => {

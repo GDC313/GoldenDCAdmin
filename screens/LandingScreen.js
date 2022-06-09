@@ -802,7 +802,7 @@ let data = [
 class LandingScreen extends Component {
     constructor(props) {
         super(props);
-        // this._setNavigationOptions()
+        this._setNavigationOptions()
     }
 
     /**
@@ -843,10 +843,11 @@ class LandingScreen extends Component {
         return (
             <View style={{
                 flex: 1,
-                backgroundColor: '#ffffff',
+                paddingTop:10,
+                backgroundColor: colors.PRIMARY_COLOR,
             }}>
                 <SafeAreaView/>
-                <StatusBar translucent backgroundColor={colors.STATUS_BAR_COLOR}/>
+                <StatusBar translucent backgroundColor='transparent'/>
 
                 <View style={{
                     height: 50,
@@ -943,7 +944,8 @@ class LandingScreen extends Component {
                 <FlatList
                     contentContainerStyle={{
                         flexGrow: 1,
-                        marginTop: 10
+                        paddingTop: 10,
+                        backgroundColor:colors.WHITE
                     }}
                     data={data}
                     renderItem={({item}) => (

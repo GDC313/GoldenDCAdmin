@@ -38,10 +38,11 @@ class SelectCaptainWicketKeeperScreen extends Component {
             <View
                 style={{
                     flex: 1,
-                    backgroundColor: '#ffffff',
+                    paddingTop:10,
+                    backgroundColor: colors.PRIMARY_COLOR,
                 }}>
                 <SafeAreaView/>
-                <StatusBar translucent backgroundColor={colors.STATUS_BAR_COLOR}/>
+                <StatusBar translucent backgroundColor='transparent'/>
 
                 <View
                     style={{
@@ -133,8 +134,9 @@ class SelectCaptainWicketKeeperScreen extends Component {
                 <FlatList
                     contentContainerStyle={{
                         flexGrow: 1,
-                        marginTop: 10,
+                        paddingTop: 10,
                         paddingBottom: 10,
+                        backgroundColor:colors.WHITE
                     }}
                     data={this.state.playerList}
                     renderItem={({item, index}) => (
@@ -218,9 +220,10 @@ class SelectCaptainWicketKeeperScreen extends Component {
                     )}/>
                 <View style={{
                     flexDirection: 'row',
-                    marginStart: 20,
-                    marginEnd: 20,
-                    marginBottom: 8,
+                    paddingStart: 20,
+                    paddingEnd: 20,
+                    paddingBottom: 8,
+                    backgroundColor:colors.WHITE
                 }}>
                     <TouchableOpacity
                         onPress={() => {
