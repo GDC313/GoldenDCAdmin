@@ -117,6 +117,10 @@ class LiveMatchScoreUpdateScreen extends Component {
                         wonToss = resultJson.teamSecondName + " won the toss and elected to bowl"
                     }
                 }
+                let score = resultJson.score !== undefined ? resultJson.score : 0
+                let overs = resultJson.overs !== undefined ? resultJson.overs : 0
+                let currentOverRun = resultJson.currentOverRun !== undefined ? resultJson.currentOverRun : []
+                let currentOverBowl = resultJson.currentOverBowl !== undefined ? resultJson.currentOverBowl : 0
                 let batsman1Runs = 0
                 let batsman2Runs = 0
                 let batsman1Bowls = 0
@@ -153,6 +157,10 @@ class LiveMatchScoreUpdateScreen extends Component {
                 }
                 this.setState({
                     batsman1Runs: batsman1Runs,
+                    runs: score,
+                    currentOverBowl: currentOverBowl,
+                    overs: overs,
+                    currentOverRun: currentOverRun,
                     batsman2Runs: batsman2Runs,
                     batsman1Bowls: batsman1Bowls,
                     batsman2Bowls: batsman2Bowls,
@@ -163,17 +171,31 @@ class LiveMatchScoreUpdateScreen extends Component {
     }
 
     updateRun(run, bowl, isBatsman1, isWideOrNoBall) {
+        console.log("updateRun...")
         let list = this.state.currentOverRun
         let lastRuns = this.state.runs
+        console.log("updateRun...1")
         isBatsman1 = this.state.isStrikerSelection
+        console.log("updateRun...2")
+
         if (!isWideOrNoBall) {
-            list.push(run)
+            console.log("updateRun...22",run)
+            console.log("updateRun...2221",list)
+            // try {
+                list.push(run)
+            // }catch (e) {
+            //     console.log("Error: ",e)
+            // }
+            console.log("updateRun...222",list)
+
             let batsman1Runs = this.state.batsman1Runs
             let batsman1Bowls = this.state.batsman1Bowls
             let batsman2Runs = this.state.batsman2Runs
             let batsman2Bowls = this.state.batsman2Bowls
             let currentOverBowl = this.state.currentOverBowl
             let currentOverBowlRun = this.state.currentOverBowlRun
+            console.log("updateRun...3")
+
             this.setState({
                 runs: lastRuns + run,
                 isStrikerSelection: (currentOverBowl + 1) === 6 || run === 1 || run === 3 ?
@@ -186,7 +208,9 @@ class LiveMatchScoreUpdateScreen extends Component {
                 currentOverRun: list,
                 currentOverBowl: currentOverBowl + 1
             }, () => {
-                if (this.state.currentOverBowl === 6) {
+                console.log("updateRun...4")
+
+                if (this.state.currentOverBowl >= 6) {
                     Alert.alert("", "Over completed",
                         [
                             {
@@ -208,13 +232,15 @@ class LiveMatchScoreUpdateScreen extends Component {
                     //     four: "0",
                     //     six: "0"
                 }
-                console.log("isSelectBowlingModel: ", this.state.isSelectBowlingModel)
-                console.log("strikerId: ", this.state.strikerId)
-                console.log("nonStrikerId: ", this.state.nonStrikerId)
-                console.log("batsman1Runs: ", this.state.batsman1Runs)
-                console.log("batsman2Runs: ", this.state.batsman2Runs)
+                // console.log("isSelectBowlingModel: ", this.state.isSelectBowlingModel)
+                // console.log("strikerId: ", this.state.strikerId)
+                // console.log("nonStrikerId: ", this.state.nonStrikerId)
+                // console.log("batsman1Runs: ", this.state.batsman1Runs)
+                // console.log("batsman2Runs: ", this.state.batsman2Runs)
+                console.log("currentOverRun: ", this.state.currentOverRun)
 
                 let path = "/liveMatchList/" + this.state.firebaseID
+                console.log("updateRun...5")
 
                 database().ref(path)
                     .orderByValue()
@@ -239,6 +265,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                     resultJson.teamSecondSquad[strikerPlayerIndex].six !== undefined ?
                                         resultJson.teamSecondSquad[strikerPlayerIndex].six + 1 : 0
                             }
+
                             console.log("resultJson.teamSecondSquad ", resultJson.teamSecondSquad[nonStrikerPlayerIndex])
                         } else {
                             resultJson.teamFirstSquad[strikerPlayerIndex].run = this.state.batsman1Runs
@@ -255,6 +282,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                             }
                             console.log("resultJson.teamFirstSquad ", resultJson.teamFirstSquad[strikerPlayerIndex])
                         }
+                        console.log("updateRun...6")
 
                         let nonStrikerPlayerIndex = resultJson.teamFirstSquad.findIndex(
                             (item) => item.id === this.state.nonStrikerId)
@@ -289,9 +317,15 @@ class LiveMatchScoreUpdateScreen extends Component {
                             }
                             console.log("resultJson.teamSecondSquad ", resultJson.teamFirstSquad[nonStrikerPlayerIndex])
                         }
+                        console.log("updateRun...7")
+
                         database()
                             .ref(path)
                             .update({
+                                score: this.state.runs,
+                                currentOverBowl: this.state.currentOverBowl,
+                                currentOverRun: this.state.currentOverRun,
+                                overs: this.state.overs,
                                 teamFirstSquad: resultJson.teamFirstSquad,
                                 teamSecondSquad: resultJson.teamSecondSquad
                             })
@@ -313,10 +347,11 @@ class LiveMatchScoreUpdateScreen extends Component {
         return (
             <View style={{
                 flex: 1,
+                paddingTop: 10,
                 backgroundColor: colors.PRIMARY_COLOR,
             }}>
                 <SafeAreaView/>
-                <StatusBar translucent backgroundColor={colors.STATUS_BAR_COLOR}/>
+                <StatusBar translucent backgroundColor='transparent'/>
 
                 <View style={{
                     height: 50,
@@ -1260,15 +1295,18 @@ class LiveMatchScoreUpdateScreen extends Component {
                         )}/>
                 </View>
 
-
                 <View style={{
                     flexDirection: 'row',
+                    flex: 1,
+                    alignItems: 'flex-end',
+                    justifyContent: 'flex-end',
+                    backgroundColor: colors.WHITE
                 }}>
                     <View style={{
                         width: '25%',
                         flexDirection: 'column',
                         backgroundColor: colors.WHITE,
-                        alignSelf: 'center'
+                        alignSelf: 'flex-end'
                     }}>
                         <TouchableOpacity
                             onPress={() => {
@@ -1338,7 +1376,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                         width: '25%',
                         flexDirection: 'column',
                         backgroundColor: colors.WHITE,
-                        alignSelf: 'center'
+                        alignSelf: 'flex-end'
                     }}>
                         <TouchableOpacity
                             onPress={() => {
@@ -1407,7 +1445,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                         width: '25%',
                         flexDirection: 'column',
                         backgroundColor: colors.WHITE,
-                        alignSelf: 'center'
+                        alignSelf: 'flex-end'
                     }}>
                         <TouchableOpacity
                             onPress={() => {
@@ -1477,7 +1515,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                         width: '25%',
                         flexDirection: 'column',
                         backgroundColor: colors.WHITE,
-                        alignSelf: 'center'
+                        alignSelf: 'flex-end'
                     }}>
                         <TouchableOpacity
                             onPress={() => {

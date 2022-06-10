@@ -215,10 +215,12 @@ class AddPlayerScreen extends Component {
         return (
             <View style={{
                 flex: 1,
-                backgroundColor: '#ffffff',
+                paddingTop:10,
+                backgroundColor: colors.PRIMARY_COLOR,
             }}>
                 <SafeAreaView/>
-                <StatusBar translucent backgroundColor={colors.STATUS_BAR_COLOR}/>
+                <StatusBar translucent backgroundColor='transparent'/>
+
                 <View style={{
                     height: 50,
                     marginTop: 22,
@@ -255,10 +257,13 @@ class AddPlayerScreen extends Component {
                         }}>{Constants.ADD_PLAYER + " to " + this.state.teamName}</Text>
                 </View>
 
-                <ScrollView>
+                <ScrollView style={{
+                    backgroundColor:colors.WHITE
+                }}>
 
                     <View style={{
                         flex: 1,
+                        backgroundColor:colors.WHITE
                     }}>
                         <TouchableOpacity onPress={() => {
                             // Alert.alert("","",
@@ -348,75 +353,80 @@ class AddPlayerScreen extends Component {
                     </View>
                 </ScrollView>
 
-                <TouchableOpacity
-                    onPress={() => {
-                        if (flagAddPlayer) {
-                            return;
-                        }
-                        let playerName = this.state.playerName
-                        let phoneNumber = this.state.phoneNumber
-                        if (playerName.trim() === "") {
-                            Alert.alert("", "Please enter Player Name")
-                            return;
-                        }
-                        if (phoneNumber.trim() === "") {
-                            Alert.alert("", "Please enter Phone number")
-                            return;
-                        }
-                        flagAddPlayer = true
-                        this.setState({
-                            isLoading: true,
-                        })
-                        this.callAPIForPlayerAdd(playerName, phoneNumber, this.state.teamId, this.state.filePath)
+                <View style={{
+                    backgroundColor:colors.WHITE
+                }}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            if (flagAddPlayer) {
+                                return;
+                            }
+                            let playerName = this.state.playerName
+                            let phoneNumber = this.state.phoneNumber
+                            if (playerName.trim() === "") {
+                                Alert.alert("", "Please enter Player Name")
+                                return;
+                            }
+                            if (phoneNumber.trim() === "") {
+                                Alert.alert("", "Please enter Phone number")
+                                return;
+                            }
+                            flagAddPlayer = true
+                            this.setState({
+                                isLoading: true,
+                            })
+                            this.callAPIForPlayerAdd(playerName, phoneNumber, this.state.teamId, this.state.filePath)
 
-                        // this.props.navigation.navigate("TeamListScreen",{
-                        //     teamName : this.state.teamName,
-                        //     city : this.state.city,
-                        //     playName : this.state.playName,
-                        //     phoneNumber : this.state.phoneNumber,
-                        //     isNewAddPlayer: true
-                        // });
-                    }}
-                    style={{
-                        marginBottom: 10,
-                        width: "90%",
-                        alignSelf: 'center',
-                    }}>
-                    <View style={{
-                        paddingTop: 16,
-                        paddingBottom: 16,
-                        paddingStart: 20,
-                        paddingEnd: 20,
-                        borderRadius: 6,
-                        backgroundColor: colors.STATUS_BAR_COLOR,
+                            // this.props.navigation.navigate("TeamListScreen",{
+                            //     teamName : this.state.teamName,
+                            //     city : this.state.city,
+                            //     playName : this.state.playName,
+                            //     phoneNumber : this.state.phoneNumber,
+                            //     isNewAddPlayer: true
+                            // });
+                        }}
+                        style={{
+                            marginBottom: 10,
+                            width: "90%",
+                            alignSelf: 'center',
+                        }}>
+                        <View style={{
+                            paddingTop: 16,
+                            paddingBottom: 16,
+                            paddingStart: 20,
+                            paddingEnd: 20,
+                            borderRadius: 6,
+                            backgroundColor: colors.STATUS_BAR_COLOR,
 
-                    }}>
-                        {(
-                            this.state.isLoading &&
-                            <ActivityIndicator
-                                size="large"
-                                color={colors.PRIMARY_COLOR}
+                        }}>
+                            {(
+                                this.state.isLoading &&
+                                <ActivityIndicator
+                                    size="large"
+                                    color={colors.PRIMARY_COLOR}
+                                    style={{
+                                        flex: 1,
+                                        alignSelf: 'center',
+                                    }}
+                                    animating={true}
+                                />
+                            )}
+                            <Text
                                 style={{
-                                    flex: 1,
+                                    fontFamily: fontStyle.MontserratBold,
+                                    fontSize: 12,
                                     alignSelf: 'center',
-                                }}
-                                animating={true}
-                            />
-                        )}
-                        <Text
-                            style={{
-                                fontFamily: fontStyle.MontserratBold,
-                                fontSize: 12,
-                                alignSelf: 'center',
-                                width: "100%",
-                                textAlign: 'center',
-                                color: !this.state.isLoading ? colors.WHITE : colors.GRAY_COLOR
-                            }}>{
-                            Constants.ADD_PLAYER
-                        }</Text>
-                    </View>
+                                    width: "100%",
+                                    textAlign: 'center',
+                                    color: !this.state.isLoading ? colors.WHITE : colors.GRAY_COLOR
+                                }}>{
+                                Constants.ADD_PLAYER
+                            }</Text>
+                        </View>
 
-                </TouchableOpacity>
+                    </TouchableOpacity>
+                </View>
+
             </View>
         );
     }
