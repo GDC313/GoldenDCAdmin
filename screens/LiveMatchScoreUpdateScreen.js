@@ -36,6 +36,7 @@ class LiveMatchScoreUpdateScreen extends Component {
             nonStrikerName: this.props.route.params.nonStrikerName,
             isNonStrikerSelection: false,
             bowlerName: this.props.route.params.bowlerName,
+            bowlerId: this.props.route.params.bowlerId,
             selectStriker: null,
             selectNonStriker: null,
             selectBowler: null,
@@ -62,6 +63,7 @@ class LiveMatchScoreUpdateScreen extends Component {
             bowlCount: 0,
             currentOverRun: [],
             currentOverBowl: 0,
+            currentOverBowlerOver: 0,
             currentOverBowlRun: 0,
             completedOver: 0,
         }
@@ -79,6 +81,7 @@ class LiveMatchScoreUpdateScreen extends Component {
         let batsman2Runs = this.state.batsman2Runs
         let batsman2Bowls = this.state.batsman2Bowls
         let currentOverBowl = this.state.currentOverBowl
+        let currentOverBowlerOver = this.state.currentOverBowlerOver
         let currentOverBowlRun = this.state.currentOverBowlRun
 
         this.setState({
@@ -121,6 +124,8 @@ class LiveMatchScoreUpdateScreen extends Component {
                 let overs = resultJson.overs !== undefined ? resultJson.overs : 0
                 let currentOverRun = resultJson.currentOverRun !== undefined ? resultJson.currentOverRun : []
                 let currentOverBowl = resultJson.currentOverBowl !== undefined ? resultJson.currentOverBowl : 0
+                let currentOverBowlerOver = resultJson.currentOverBowlerOver !== undefined ?
+                    resultJson.currentOverBowlerOver : 0
                 let batsman1Runs = 0
                 let batsman2Runs = 0
                 let batsman1Bowls = 0
@@ -155,44 +160,65 @@ class LiveMatchScoreUpdateScreen extends Component {
                     batsman2Bowls = resultJson.teamFirstSquad[nonStrikerPlayerIndex].bowl !== undefined ?
                         resultJson.teamFirstSquad[nonStrikerPlayerIndex].bowl : 0
                 }
-                this.setState({
-                    batsman1Runs: batsman1Runs,
-                    runs: score,
-                    currentOverBowl: currentOverBowl,
-                    overs: overs,
-                    currentOverRun: currentOverRun,
-                    batsman2Runs: batsman2Runs,
-                    batsman1Bowls: batsman1Bowls,
-                    batsman2Bowls: batsman2Bowls,
-                    totalOvers: resultJson.noOfOvers,
-                    wonToss: wonToss
-                })
+
+                if (currentOverRun => 6) {
+                    this.setState({
+                        isSelectBowlingModel: true,
+                        currentOverRun: [],
+                        overs: overs,
+                        currentOverBowl: 0,
+                        batsman1Runs: batsman1Runs,
+                        runs: score,
+                        batsman2Runs: batsman2Runs,
+                        batsman1Bowls: batsman1Bowls,
+                        batsman2Bowls: batsman2Bowls,
+                        totalOvers: resultJson.noOfOvers,
+                        wonToss: wonToss
+                    })
+                } else {
+                    this.setState({
+                        batsman1Runs: batsman1Runs,
+                        runs: score,
+                        currentOverBowl: currentOverBowl,
+                        currentOverBowlerOver: currentOverBowlerOver,
+                        overs: overs,
+                        currentOverRun: currentOverRun,
+                        batsman2Runs: batsman2Runs,
+                        batsman1Bowls: batsman1Bowls,
+                        batsman2Bowls: batsman2Bowls,
+                        totalOvers: resultJson.noOfOvers,
+                        wonToss: wonToss
+                    })
+                }
+
             })
     }
 
     updateRun(run, bowl, isBatsman1, isWideOrNoBall) {
-        console.log("updateRun...")
-        let list = this.state.currentOverRun
+        console.log("updateRun...", this.state.currentOverRun)
+        let list = []
+        list.push(...this.state.currentOverRun)
         let lastRuns = this.state.runs
-        console.log("updateRun...1")
+        console.log("updateRun...1", list)
         isBatsman1 = this.state.isStrikerSelection
         console.log("updateRun...2")
 
         if (!isWideOrNoBall) {
-            console.log("updateRun...22",run)
-            console.log("updateRun...2221",list)
+            console.log("updateRun...22", run)
+            console.log("updateRun...2221", list)
             // try {
-                list.push(run)
+            list.push(run)
             // }catch (e) {
             //     console.log("Error: ",e)
             // }
-            console.log("updateRun...222",list)
+            console.log("updateRun...222", list)
 
             let batsman1Runs = this.state.batsman1Runs
             let batsman1Bowls = this.state.batsman1Bowls
             let batsman2Runs = this.state.batsman2Runs
             let batsman2Bowls = this.state.batsman2Bowls
-            let currentOverBowl = this.state.currentOverBowl
+            let currentOverBowl = this.state.currentOverBowl + 1
+            let currentOverBowlerOver = this.state.currentOverBowlerOver
             let currentOverBowlRun = this.state.currentOverBowlRun
             console.log("updateRun...3")
 
@@ -206,11 +232,12 @@ class LiveMatchScoreUpdateScreen extends Component {
                 batsman1Bowls: isBatsman1 ? batsman1Bowls + 1 : batsman1Bowls,
                 batsman2Bowls: !isBatsman1 ? batsman2Bowls + 1 : batsman2Bowls,
                 currentOverRun: list,
-                currentOverBowl: currentOverBowl + 1
+                currentOverBowl: currentOverBowl
             }, () => {
                 console.log("updateRun...4")
 
                 if (this.state.currentOverBowl >= 6) {
+                    currentOverBowlerOver = currentOverBowlerOver + 1
                     Alert.alert("", "Over completed",
                         [
                             {
@@ -317,14 +344,33 @@ class LiveMatchScoreUpdateScreen extends Component {
                             }
                             console.log("resultJson.teamSecondSquad ", resultJson.teamFirstSquad[nonStrikerPlayerIndex])
                         }
+
+                        if(this.state.bowlingTeamId === 1){
+                            let bowlerIndex = resultJson.teamFirstSquad.findIndex(
+                                (item) => item.id === this.state.bowlerId)
+                            let bowlerData = resultJson.teamFirstSquad.filter(
+                                (item) => item.id === this.state.bowlerId)
+                            console.log("1st bowlerData",bowlerData)
+                            resultJson.teamFirstSquad[bowlerIndex].currentOverBowl = currentOverBowl
+                            resultJson.teamFirstSquad[bowlerIndex].currentOverBowlerOver = currentOverBowlerOver
+                        }else{
+                            let bowlerIndex = resultJson.teamSecondSquad.findIndex(
+                                (item) => item.id === this.state.bowlerId)
+                            let bowlerData = resultJson.teamSecondSquad.filter(
+                                (item) => item.id === this.state.bowlerId)
+                            console.log("2nd bowlerData",bowlerData)
+                            resultJson.teamSecondSquad[bowlerIndex].currentOverBowl = currentOverBowl
+                            resultJson.teamSecondSquad[bowlerIndex].currentOverBowlerOver = currentOverBowlerOver
+                        }
+
                         console.log("updateRun...7")
 
                         database()
                             .ref(path)
                             .update({
                                 score: this.state.runs,
-                                currentOverBowl: this.state.currentOverBowl,
                                 currentOverRun: this.state.currentOverRun,
+                                currentOverBowl: this.state.currentOverBowl,
                                 overs: this.state.overs,
                                 teamFirstSquad: resultJson.teamFirstSquad,
                                 teamSecondSquad: resultJson.teamSecondSquad
@@ -541,12 +587,56 @@ class LiveMatchScoreUpdateScreen extends Component {
                                     })
 
                                     list[index].isBowler = !list[index].isBowler
-                                    this.setState({
-                                        bowlingTeamSquad: list,
-                                        bowlerName: list[index].name,
-                                        isSelectBowlingModel: false,
-                                        isSelectBowlingStyleModel: true
-                                    })
+
+                                    let path = "/liveMatchList/" + this.state.firebaseID
+                                    database().ref(path)
+                                        .orderByValue()
+                                        .once('value')
+                                        .then((result) => {
+                                            let resultJson = JSON.parse(JSON.stringify(result))
+
+                                            let currentOverBowl = 0
+                                            let currentOverBowlerOver = 0
+
+                                            if(this.state.bowlingTeamId === 1){
+                                                let bowlerIndex = resultJson.teamFirstSquad.findIndex(
+                                                    (item) => item.id === list[index].id)
+                                                let bowlerData = resultJson.teamFirstSquad.filter(
+                                                    (item) => item.id === list[index].id)
+                                                currentOverBowlerOver =
+                                                    resultJson.teamFirstSquad[bowlerIndex].currentOverBowlerOver !== undefined ?
+                                                        resultJson.teamFirstSquad[bowlerIndex].currentOverBowlerOver : 0
+                                                currentOverBowl =
+                                                    resultJson.teamFirstSquad[bowlerIndex].currentOverBowl !== undefined ?
+                                                        resultJson.teamFirstSquad[bowlerIndex].currentOverBowl : 0
+                                            }else{
+                                                let bowlerIndex = resultJson.teamSecondSquad.findIndex(
+                                                    (item) => item.id === list[index].id)
+                                                let bowlerData = resultJson.teamSecondSquad.filter(
+                                                    (item) => item.id === list[index].id)
+                                                currentOverBowlerOver =
+                                                    resultJson.teamSecondSquad[bowlerIndex].currentOverBowlerOver !== undefined ?
+                                                    resultJson.teamSecondSquad[bowlerIndex].currentOverBowlerOver : 0
+                                                currentOverBowl =
+                                                    resultJson.teamSecondSquad[bowlerIndex].currentOverBowl !== undefined ?
+                                                    resultJson.teamSecondSquad[bowlerIndex].currentOverBowl : 0
+                                            }
+
+                                            if(currentOverBowl>=6){
+                                                currentOverBowl = 0
+                                            }
+
+                                            this.setState({
+                                                bowlingTeamSquad: list,
+                                                bowlerName: list[index].name,
+                                                bowlerId: list[index].id,
+                                                isSelectBowlingModel: false,
+                                                isSelectBowlingStyleModel: list[index].bowlingStyle === undefined ||
+                                                    list[index].bowlingStyle === null,
+                                                currentOverBowl: currentOverBowl,
+                                                currentOverBowlerOver: currentOverBowlerOver,
+                                            })
+                                        })
                                 }}>
                                     <View style={{
                                         flexDirection: 'row',
@@ -650,6 +740,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                     }}
                                     onPress={() => {
                                         this.setState({
+                                            isSelectBowlingStyleName: Constants.RIGHT_ARM_FAST,
                                             isSelectBowlingStyleRightArmFast: true,
                                             isSelectBowlingStyleRightArmMedium: false,
                                             isSelectBowlingStyleLeftArmFast: false,
@@ -687,6 +778,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                     }}
                                     onPress={() => {
                                         this.setState({
+                                            isSelectBowlingStyleName: Constants.RIGHT_ARM_MEDIUM,
                                             isSelectBowlingStyleRightArmFast: false,
                                             isSelectBowlingStyleRightArmMedium: true,
                                             isSelectBowlingStyleLeftArmFast: false,
@@ -731,6 +823,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                     }}
                                     onPress={() => {
                                         this.setState({
+                                            isSelectBowlingStyleName: Constants.LEFT_ARM_FAST,
                                             isSelectBowlingStyleRightArmFast: false,
                                             isSelectBowlingStyleRightArmMedium: false,
                                             isSelectBowlingStyleLeftArmFast: true,
@@ -768,6 +861,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                     }}
                                     onPress={() => {
                                         this.setState({
+                                            isSelectBowlingStyleName: Constants.LEFT_ARM_MEDIUM,
                                             isSelectBowlingStyleRightArmFast: false,
                                             isSelectBowlingStyleRightArmMedium: false,
                                             isSelectBowlingStyleLeftArmFast: false,
@@ -811,6 +905,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                     }}
                                     onPress={() => {
                                         this.setState({
+                                            isSelectBowlingStyleName: Constants.SLOW_LEFT_ARM_ORTHOBOX,
                                             isSelectBowlingStyleRightArmFast: false,
                                             isSelectBowlingStyleRightArmMedium: false,
                                             isSelectBowlingStyleLeftArmFast: false,
@@ -848,6 +943,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                     }}
                                     onPress={() => {
                                         this.setState({
+                                            isSelectBowlingStyleName: Constants.SLOW_LEFT_ARM_CHINA_MAN,
                                             isSelectBowlingStyleRightArmFast: false,
                                             isSelectBowlingStyleRightArmMedium: false,
                                             isSelectBowlingStyleLeftArmFast: false,
@@ -891,6 +987,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                     }}
                                     onPress={() => {
                                         this.setState({
+                                            isSelectBowlingStyleName: Constants.RIGHT_ARM_OFF_BREAK,
                                             isSelectBowlingStyleRightArmFast: false,
                                             isSelectBowlingStyleRightArmMedium: false,
                                             isSelectBowlingStyleLeftArmFast: false,
@@ -928,6 +1025,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                     }}
                                     onPress={() => {
                                         this.setState({
+                                            isSelectBowlingStyleName: Constants.RIGHT_ARM_LRG_BREAK,
                                             isSelectBowlingStyleRightArmFast: false,
                                             isSelectBowlingStyleRightArmMedium: false,
                                             isSelectBowlingStyleLeftArmFast: false,
@@ -1007,6 +1105,38 @@ class LiveMatchScoreUpdateScreen extends Component {
                                             Alert.alert("Please select bowling style")
                                             return
                                         }
+                                        let list = JSON.parse(JSON.stringify(this.state.bowlingTeamSquad))
+                                        database().ref(path)
+                                            .orderByValue()
+                                            .once('value')
+                                            .then((result) => {
+                                                let resultJson = JSON.parse(JSON.stringify(result))
+                                                if(this.state.bowlingTeamId === 1){
+                                                    let bowlerIndex = resultJson.teamFirstSquad.findIndex(
+                                                        (item) => item.id === this.state.bowlerId)
+                                                    let bowlerData = resultJson.teamFirstSquad.filter(
+                                                        (item) => item.id === this.state.bowlerId)
+                                                    console.log("1st bowlerData",bowlerData)
+                                                    resultJson.teamFirstSquad[bowlerIndex].bowlingStyle = this.state.isSelectBowlingStyleName
+                                                }else{
+                                                    let bowlerIndex = resultJson.teamSecondSquad.findIndex(
+                                                        (item) => item.id === this.state.bowlerId)
+                                                    let bowlerData = resultJson.teamSecondSquad.filter(
+                                                        (item) => item.id === this.state.bowlerId)
+                                                    console.log("2nd bowlerData",bowlerData)
+                                                    resultJson.teamSecondSquad[bowlerIndex].bowlingStyle = this.state.isSelectBowlingStyleName
+                                                }
+
+                                                database()
+                                                    .ref(path)
+                                                    .update({
+                                                        teamFirstSquad: resultJson.teamFirstSquad,
+                                                        teamSecondSquad: resultJson.teamSecondSquad
+                                                    })
+                                                    .then((result) => console.log('Data updated.', result));
+                                            })
+                                        // this.updateBowlingIndex(list, , true)
+
                                         this.setState({
                                             isSelectBowlingStyleModel: false
                                         })
@@ -1224,7 +1354,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                 fontSize: 14,
                                 alignSelf: 'center',
                                 color: colors.STATUS_BAR_COLOR
-                            }}>{this.state.completedOver + "." + this.state.currentOverBowl + " -"}</Text>
+                            }}>{this.state.currentOverBowlerOver + "." + this.state.currentOverBowl + " -"}</Text>
                         <Text
                             style={{
                                 textAlign: 'center',
