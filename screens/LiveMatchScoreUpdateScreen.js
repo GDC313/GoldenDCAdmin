@@ -22,6 +22,7 @@ class LiveMatchScoreUpdateScreen extends Component {
         super(props);
         this.state = {
             firebaseID: this.props.route.params.firebaseID,
+            batFirstTeamId: this.props.route.params.batFirstTeamId,
             battingTeamId: this.props.route.params.battingTeamId,
             battingTeamName: this.props.route.params.battingTeamName,
             bowlingTeamId: this.props.route.params.bowlingTeamId,
@@ -173,6 +174,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                         batsman1Bowls: batsman1Bowls,
                         batsman2Bowls: batsman2Bowls,
                         totalOvers: resultJson.noOfOvers,
+                        batFirstTeamId: resultJson.batFirstTeamId,
                         wonToss: wonToss
                     })
                 } else {
@@ -187,6 +189,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                         batsman1Bowls: batsman1Bowls,
                         batsman2Bowls: batsman2Bowls,
                         totalOvers: resultJson.noOfOvers,
+                        batFirstTeamId: resultJson.batFirstTeamId,
                         wonToss: wonToss
                     })
                 }
@@ -219,6 +222,7 @@ class LiveMatchScoreUpdateScreen extends Component {
             let batsman2Bowls = this.state.batsman2Bowls
             let currentOverBowl = this.state.currentOverBowl + 1
             let currentOverBowlerOver = this.state.currentOverBowlerOver
+            let overs = this.state.overs
             let currentOverBowlRun = this.state.currentOverBowlRun
             console.log("updateRun...3")
 
@@ -238,20 +242,30 @@ class LiveMatchScoreUpdateScreen extends Component {
 
                 if (this.state.currentOverBowl >= 6) {
                     currentOverBowlerOver = currentOverBowlerOver + 1
-                    Alert.alert("", "Over completed",
-                        [
-                            {
-                                text: "Select bowler", onPress: () => {
-                                    this.setState({
-                                        isSelectBowlingModel: true,
-                                        currentOverRun: [],
-                                        overs: this.state.overs + 1,
-                                        currentOverBowl: 0,
-                                    })
+                    overs = overs + 1
+                    if(overs >= this.state.totalOvers){
+                        if(this.state.battingTeamId === this.state.batFirstTeamId){
+                            Alert.alert("", "First inning completed")
+                        }else{
+                            Alert.alert("", "Match completed")
+                        }
+
+                    }else{
+                        Alert.alert("", "Over completed",
+                            [
+                                {
+                                    text: "Select bowler", onPress: () => {
+                                        this.setState({
+                                            isSelectBowlingModel: true,
+                                            currentOverRun: [],
+                                            overs: overs,
+                                            currentOverBowl: 0,
+                                        })
+                                    }
                                 }
-                            }
-                        ]
-                    )
+                            ]
+                        )
+                    }
                 } else {
                     // out: "c Neil Rock b Craig Young",
                     //     run: "1",
@@ -364,18 +378,27 @@ class LiveMatchScoreUpdateScreen extends Component {
                         }
 
                         console.log("updateRun...7")
+                        if(overs >= resultJson.noOfOvers){
+                            if(this.state.battingTeamId === resultJson.batFirstTeamId){
+                                alert("1st inning finish")
+                            }else{
+                                alert("Match complete")
+                            }
 
+                        }
                         database()
                             .ref(path)
                             .update({
                                 score: this.state.runs,
                                 currentOverRun: this.state.currentOverRun,
                                 currentOverBowl: this.state.currentOverBowl,
-                                overs: this.state.overs,
+                                overs: overs,
                                 teamFirstSquad: resultJson.teamFirstSquad,
                                 teamSecondSquad: resultJson.teamSecondSquad
                             })
-                            .then((result) => console.log('Data updated.', result));
+                            .then((result) => {
+                                console.log('Data updated.', result)
+                            });
                     })
 
             })
