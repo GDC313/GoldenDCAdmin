@@ -106,23 +106,42 @@ class LiveMatchScoreUpdateScreen extends Component {
             .then((result) => {
                 let resultJson = JSON.parse(JSON.stringify(result))
                 console.log("resultJson: ", resultJson)
+                let isFirstSessionCompleted =
+                    resultJson.isFirstSessionCompleted !== undefined &&
+                    resultJson.isFirstSessionCompleted !== null &&
+                    resultJson.isFirstSessionCompleted === true
+                let overs = resultJson.overs !== undefined ? resultJson.overs : 0
 
-                let wonToss = ""
-                if (resultJson.tossWonTeamId === 1) {
-                    if (resultJson.batFirstTeamId === 1) {
-                        wonToss = resultJson.teamFirstName + " won the toss and elected to bat"
-                    } else {
-                        wonToss = resultJson.teamFirstName + " won the toss and elected to bowl"
-                    }
-                } else if (resultJson.tossWonTeamId === 2) {
-                    if (resultJson.batFirstTeamId === 1) {
-                        wonToss = resultJson.teamSecondName + " won the toss and elected to bat"
-                    } else {
-                        wonToss = resultJson.teamSecondName + " won the toss and elected to bowl"
+                if(!isFirstSessionCompleted){
+                    if(overs >= resultJson.noOfOvers){
+                        console.log("sfsfdsfsdfsdfsdfsdf")
+                        isFirstSessionCompleted = true
                     }
                 }
+
+                let wonToss = ""
+                // if (resultJson.tossWonTeamId === 1) {
+                //     if (resultJson.batFirstTeamId === 1) {
+                //         wonToss = resultJson.teamFirstName + " won the toss and elected to bat"
+                //     } else {
+                //         wonToss = resultJson.teamFirstName + " won the toss and elected to bowl"
+                //     }
+                // } else if (resultJson.tossWonTeamId === 2) {
+                //     if (resultJson.batFirstTeamId === 1) {
+                //         wonToss = resultJson.teamSecondName + " won the toss and elected to bat"
+                //     } else {
+                //         wonToss = resultJson.teamSecondName + " won the toss and elected to bowl"
+                //     }
+                // }
+
+                if(resultJson.batFirstTeamId === resultJson.teamFirstId){
+                    wonToss = resultJson.teamFirstName + " won the toss and elected to bat"
+                }else{
+                    wonToss = resultJson.teamSecondName + " won the toss and elected to bowl"
+                }
+
+
                 let score = resultJson.score !== undefined ? resultJson.score : 0
-                let overs = resultJson.overs !== undefined ? resultJson.overs : 0
                 let currentOverRun = resultJson.currentOverRun !== undefined ? resultJson.currentOverRun : []
                 let currentOverBowl = resultJson.currentOverBowl !== undefined ? resultJson.currentOverBowl : 0
                 let currentOverBowlerOver = resultJson.currentOverBowlerOver !== undefined ?
@@ -162,7 +181,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                         resultJson.teamFirstSquad[nonStrikerPlayerIndex].bowl : 0
                 }
 
-                if (currentOverRun => 6) {
+                if (currentOverRun.length >= 6) {
                     this.setState({
                         isSelectBowlingModel: true,
                         currentOverRun: [],
