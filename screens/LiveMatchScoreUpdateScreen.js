@@ -110,7 +110,8 @@ class LiveMatchScoreUpdateScreen extends Component {
                     resultJson.isFirstSessionCompleted !== undefined &&
                     resultJson.isFirstSessionCompleted !== null &&
                     resultJson.isFirstSessionCompleted === true
-                let overs = resultJson.overs !== undefined ? resultJson.overs : 0
+                let overs = resultJson.batFirstTeamId === resultJson.teamFirstId ?
+                    resultJson.teamFirstInning.overs  : resultJson.teamSecondInning.overs
 
                 if(!isFirstSessionCompleted){
                     if(overs >= resultJson.noOfOvers){
@@ -141,7 +142,9 @@ class LiveMatchScoreUpdateScreen extends Component {
                 }
 
 
-                let score = resultJson.score !== undefined ? resultJson.score : 0
+                let score = resultJson.batFirstTeamId === resultJson.teamFirstId ?
+                    resultJson.teamFirstInning.score : resultJson.teamSecondInning.score
+
                 let currentOverRun = resultJson.currentOverRun !== undefined ? resultJson.currentOverRun : []
                 let currentOverBowl = resultJson.currentOverBowl !== undefined ? resultJson.currentOverBowl : 0
                 let currentOverBowlerOver = resultJson.currentOverBowlerOver !== undefined ?
@@ -396,6 +399,16 @@ class LiveMatchScoreUpdateScreen extends Component {
                             resultJson.teamSecondSquad[bowlerIndex].currentOverBowlerOver = currentOverBowlerOver
                         }
 
+                        if(resultJson.batFirstTeamId === resultJson.teamFirstId){
+                            resultJson.teamFirstInning.score = this.state.runs
+                            resultJson.teamFirstInning.overs = overs
+                            resultJson.teamFirstInning.wickets = 0
+                        }else{
+                            resultJson.teamSecondInning.score = this.state.runs
+                            resultJson.teamSecondInning.overs = overs
+                            resultJson.teamSecondInning.wickets = 0
+                        }
+
                         console.log("updateRun...7")
                         if(overs >= resultJson.noOfOvers){
                             if(this.state.battingTeamId === resultJson.batFirstTeamId){
@@ -408,10 +421,10 @@ class LiveMatchScoreUpdateScreen extends Component {
                         database()
                             .ref(path)
                             .update({
-                                score: this.state.runs,
                                 currentOverRun: this.state.currentOverRun,
                                 currentOverBowl: this.state.currentOverBowl,
-                                overs: overs,
+                                teamFirstInning: resultJson.teamFirstInning,
+                                teamSecondInning: resultJson.teamSecondInning,
                                 teamFirstSquad: resultJson.teamFirstSquad,
                                 teamSecondSquad: resultJson.teamSecondSquad
                             })
@@ -639,6 +652,7 @@ class LiveMatchScoreUpdateScreen extends Component {
 
                                             let currentOverBowl = 0
                                             let currentOverBowlerOver = 0
+                                            let isStyleSet = false
 
                                             if(this.state.bowlingTeamId === 1){
                                                 let bowlerIndex = resultJson.teamFirstSquad.findIndex(
@@ -651,6 +665,8 @@ class LiveMatchScoreUpdateScreen extends Component {
                                                 currentOverBowl =
                                                     resultJson.teamFirstSquad[bowlerIndex].currentOverBowl !== undefined ?
                                                         resultJson.teamFirstSquad[bowlerIndex].currentOverBowl : 0
+                                                isStyleSet = resultJson.teamFirstSquad[bowlerIndex].bowlingStyle === undefined ||
+                                                    resultJson.teamFirstSquad[bowlerIndex].bowlingStyle === null
                                             }else{
                                                 let bowlerIndex = resultJson.teamSecondSquad.findIndex(
                                                     (item) => item.id === list[index].id)
@@ -662,19 +678,19 @@ class LiveMatchScoreUpdateScreen extends Component {
                                                 currentOverBowl =
                                                     resultJson.teamSecondSquad[bowlerIndex].currentOverBowl !== undefined ?
                                                     resultJson.teamSecondSquad[bowlerIndex].currentOverBowl : 0
+                                                isStyleSet = resultJson.teamSecondSquad[bowlerIndex].bowlingStyle === undefined ||
+                                                    resultJson.teamSecondSquad[bowlerIndex].bowlingStyle === null
                                             }
 
                                             if(currentOverBowl>=6){
                                                 currentOverBowl = 0
                                             }
-
                                             this.setState({
                                                 bowlingTeamSquad: list,
                                                 bowlerName: list[index].name,
                                                 bowlerId: list[index].id,
                                                 isSelectBowlingModel: false,
-                                                isSelectBowlingStyleModel: list[index].bowlingStyle === undefined ||
-                                                    list[index].bowlingStyle === null,
+                                                isSelectBowlingStyleModel:isStyleSet,
                                                 currentOverBowl: currentOverBowl,
                                                 currentOverBowlerOver: currentOverBowlerOver,
                                             })
@@ -1148,6 +1164,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                             return
                                         }
                                         let list = JSON.parse(JSON.stringify(this.state.bowlingTeamSquad))
+                                        let path = "/liveMatchList/" + this.state.firebaseID
                                         database().ref(path)
                                             .orderByValue()
                                             .once('value')

@@ -148,7 +148,6 @@ class StartInningScreen extends Component {
                     })
                     resultJson.teamSecondSquad[playerIndex].battingIndex = position
                     resultJson.teamSecondSquad[playerIndex].strikerIndex = position
-
                 } else {
                     playerIndex = resultJson.teamFirstSquad.findIndex(
                         (item) => item.id === list[selectedIndex].id)
@@ -173,20 +172,6 @@ class StartInningScreen extends Component {
                 database()
                     .ref(path)
                     .update({
-                        firstInning :{
-                            score: 0,
-                            overs: 0,
-                            wickets: 0
-                        },
-                        secondInning :{
-                            score: 0,
-                            overs: 0,
-                            wickets: 0
-                        },
-                        isFirstInningCompleted: false,
-                        currentOverRun: [],
-                        currentOverBowl: 0,
-                        currentOverBowlerOver: 0,
                         teamFirstSquad: resultJson.teamFirstSquad,
                         teamSecondSquad: resultJson.teamSecondSquad
                     })

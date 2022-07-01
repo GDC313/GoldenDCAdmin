@@ -397,12 +397,27 @@ class TossScreen extends Component {
                             }
                             let path = "/liveMatchList/" + this.state.firebaseID
                             console.log("path: ", path)
+
                             database()
                                 .ref(path)
                                 .update({
                                     tossWonTeamId: this.state.wonTossTeamFirst ?
                                         this.state.teamFirstId : this.state.teamSecondId,
                                     batFirstTeamId: battingTeamId,
+                                    isFirstInningCompleted: false,
+                                    currentOverRun: [],
+                                    currentOverBowl: 0,
+                                    currentOverBowlerOver: 0,
+                                    teamFirstInning : {
+                                        score: 0,
+                                        overs: 0,
+                                        wickets: 0
+                                    },
+                                    teamSecondInning : {
+                                        score: 0,
+                                        overs: 0,
+                                        wickets: 0
+                                    }
                                 })
                                 .then(() => console.log('Data updated.'));
 
