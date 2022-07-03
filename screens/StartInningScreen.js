@@ -67,33 +67,37 @@ class StartInningScreen extends Component {
                 } else {
                     selectedId = list[selectedIndex].id
                 }
-                let playerIndex = resultJson.teamFirstSquad.findIndex(
-                    (item) => item.id === selectedId)
-                if (playerIndex === -1) {
+                console.log("selectedId : ",selectedId)
+                console.log("resultJson.batFirstTeamId : ",resultJson.batFirstTeamId)
+                console.log("resultJson.teamFirstId : ",resultJson.teamFirstId)
+                if(resultJson.batFirstTeamId !== resultJson.teamFirstId){
+                    let playerIndex = resultJson.teamFirstSquad.findIndex(
+                        (item) => item.id === selectedId)
+                    console.log("playerIndex 1: ",playerIndex)
+                    if (isBowlingStyle) {
+                        resultJson.teamFirstSquad[playerIndex].bowlingStyle = this.state.isSelectBowlingStyleName
+                    }
+                    resultJson.teamFirstSquad.filter((item) => {
+                        item.bowlingIndex = 0
+                        item.battingIndex = 0
+                        item.strikerIndex = 0
+                    })
+                    resultJson.teamFirstSquad[playerIndex].bowlingIndex = 1
+                }else{
+                    let playerIndex = resultJson.teamSecondSquad.findIndex(
+                        (item) => item.id === selectedId)
+                    console.log("playerIndex 1: ",playerIndex)
                     playerIndex = resultJson.teamSecondSquad.findIndex(
                         (item) => item.id === selectedId)
                     if (isBowlingStyle) {
                         resultJson.teamSecondSquad[playerIndex].bowlingStyle = this.state.isSelectBowlingStyleName
-                    } else {
-                        resultJson.teamSecondSquad.filter((item) => {
-                            item.bowlingIndex = 0
-                            item.battingIndex = 0
-                            item.strikerIndex = 0
-                        })
-                        resultJson.teamSecondSquad[playerIndex].bowlingIndex = 1
                     }
-
-                } else {
-                    if (isBowlingStyle) {
-                        resultJson.teamFirstSquad[playerIndex].bowlingStyle = this.state.isSelectBowlingStyleName
-                    } else {
-                        resultJson.teamFirstSquad.filter((item) => {
-                            item.bowlingIndex = 0
-                            item.battingIndex = 0
-                            item.strikerIndex = 0
-                        })
-                        resultJson.teamFirstSquad[playerIndex].bowlingIndex = 1
-                    }
+                    resultJson.teamSecondSquad.filter((item) => {
+                        item.bowlingIndex = 0
+                        item.battingIndex = 0
+                        item.strikerIndex = 0
+                    })
+                    resultJson.teamSecondSquad[playerIndex].bowlingIndex = 1
                 }
 
                 database()
@@ -127,34 +131,10 @@ class StartInningScreen extends Component {
             .once('value')
             .then((result) => {
                 let resultJson = JSON.parse(JSON.stringify(result))
-                let playerIndex = resultJson.teamFirstSquad.findIndex(
-                    (item) => item.id === list[selectedIndex].id)
-                if (playerIndex === -1) {
-                    playerIndex = resultJson.teamSecondSquad.findIndex(
+
+                if(resultJson.batFirstTeamId === resultJson.teamFirstId) {
+                    let playerIndex = resultJson.teamFirstSquad.findIndex(
                         (item) => item.id === list[selectedIndex].id)
-                    // if (resultJson.teamSecondSquad[playerIndex].battingIndex !== undefined &&
-                    //     resultJson.teamSecondSquad[playerIndex].battingIndex > 0) {
-                    // } else {
-                    // }
-                    resultJson.teamSecondSquad.filter((item) => {
-                        if (isStriker && item.battingIndex === 1) {
-                            item.battingIndex = 0
-                            item.strikerIndex = 0
-                        } else if (!isStriker && item.battingIndex === 2) {
-                            item.battingIndex = 0
-                            item.strikerIndex = 0
-                        }
-                        item.bowlingIndex = 0
-                    })
-                    resultJson.teamSecondSquad[playerIndex].battingIndex = position
-                    resultJson.teamSecondSquad[playerIndex].strikerIndex = position
-                } else {
-                    playerIndex = resultJson.teamFirstSquad.findIndex(
-                        (item) => item.id === list[selectedIndex].id)
-                    // if (resultJson.teamFirstSquad[playerIndex].battingIndex !== undefined &&
-                    //     resultJson.teamFirstSquad[playerIndex].battingIndex > 0) {
-                    // } else {
-                    // }
                     resultJson.teamFirstSquad.filter((item) => {
                         if (isStriker && item.battingIndex === 1) {
                             item.battingIndex = 0
@@ -167,8 +147,22 @@ class StartInningScreen extends Component {
                     })
                     resultJson.teamFirstSquad[playerIndex].battingIndex = position
                     resultJson.teamFirstSquad[playerIndex].strikerIndex = position
+                }else{
+                    let playerIndex = resultJson.teamSecondSquad.findIndex(
+                        (item) => item.id === list[selectedIndex].id)
+                    resultJson.teamSecondSquad.filter((item) => {
+                        if (isStriker && item.battingIndex === 1) {
+                            item.battingIndex = 0
+                            item.strikerIndex = 0
+                        } else if (!isStriker && item.battingIndex === 2) {
+                            item.battingIndex = 0
+                            item.strikerIndex = 0
+                        }
+                        item.bowlingIndex = 0
+                    })
+                    resultJson.teamSecondSquad[playerIndex].battingIndex = position
+                    resultJson.teamSecondSquad[playerIndex].strikerIndex = position
                 }
-
                 database()
                     .ref(path)
                     .update({
@@ -1085,7 +1079,7 @@ class StartInningScreen extends Component {
                                 Alert.alert("", "Please select bowler")
                                 return
                             }
-
+                            console.log("safasdasd")
                             let path = "/liveMatchList/" + this.state.firebaseID
 
                             database().ref(path)
@@ -1116,7 +1110,7 @@ class StartInningScreen extends Component {
                                     } else {
                                         strikerPlayer = resultJson.teamFirstSquad[strikerIndex]
                                     }
-
+                                    console.log("123456")
                                     let nonStrikerPlayer = null
                                     let nonStrikerIndex = resultJson.teamFirstSquad.findIndex(
                                         (item) => item.strikerIndex === 2)
@@ -1127,7 +1121,7 @@ class StartInningScreen extends Component {
                                     } else {
                                         nonStrikerPlayer = resultJson.teamFirstSquad[nonStrikerIndex]
                                     }
-
+                                    console.log("frteg")
                                     this.props.navigation.navigate("LiveMatchScoreUpdateScreen", {
                                         firebaseID: this.state.firebaseID,
                                         battingTeamId: this.state.battingTeamId,
@@ -1144,6 +1138,9 @@ class StartInningScreen extends Component {
                                         bowlerName: bowlerPlayer.name,
                                         bowlerId: bowlerPlayer.id,
                                     })
+                                })
+                                .catch((error)=>{
+                                    console.log("Catch Error: ",error)
                                 })
 
 
