@@ -6,7 +6,7 @@ import {
     ImageBackground, Modal,
     SafeAreaView,
     StatusBar,
-    Text,
+    Text, TextInput,
     TouchableOpacity,
     View
 } from "react-native";
@@ -16,6 +16,8 @@ import colors from "../styles/colors";
 import fontStyle from "../styles/fontStyle";
 import Constants from "../styles/Constants";
 import database from "@react-native-firebase/database";
+
+let extraRun = 0
 
 class LiveMatchScoreUpdateScreen extends Component {
     constructor(props) {
@@ -41,6 +43,7 @@ class LiveMatchScoreUpdateScreen extends Component {
             selectStriker: null,
             selectNonStriker: null,
             selectBowler: null,
+            isSelectExtraModel: false,
             isSelectBattingModel: false,
             isSelectBowlingModel: false,
             isSelectBowlingStyleModel: false,
@@ -57,6 +60,7 @@ class LiveMatchScoreUpdateScreen extends Component {
             batsman2Runs: 0,
             batsman2Bowls: 0,
             runs: 0,
+            extra: 0,
             wickets: 0,
             totalOvers: 20,
             overs: 0,
@@ -74,6 +78,7 @@ class LiveMatchScoreUpdateScreen extends Component {
         let list = this.state.currentOverRun
         let lastRun = list[list.length - 1]
         let run = this.state.runs
+        let extra = this.state.extra
 
         list = list.filter((_, i) => i !== list.length - 1)
 
@@ -99,6 +104,7 @@ class LiveMatchScoreUpdateScreen extends Component {
     }
 
     componentDidMount() {
+        extraRun = 0
         let path = "/liveMatchList/" + this.state.firebaseID
         database().ref(path)
             .orderByValue()
@@ -111,10 +117,10 @@ class LiveMatchScoreUpdateScreen extends Component {
                     resultJson.isFirstSessionCompleted !== null &&
                     resultJson.isFirstSessionCompleted === true
                 let overs = resultJson.batFirstTeamId === resultJson.teamFirstId ?
-                    resultJson.teamFirstInning.overs  : resultJson.teamSecondInning.overs
+                    resultJson.teamFirstInning.overs : resultJson.teamSecondInning.overs
 
-                if(!isFirstSessionCompleted){
-                    if(overs >= resultJson.noOfOvers){
+                if (!isFirstSessionCompleted) {
+                    if (overs >= resultJson.noOfOvers) {
                         console.log("sfsfdsfsdfsdfsdfsdf")
                         isFirstSessionCompleted = true
                     }
@@ -135,15 +141,21 @@ class LiveMatchScoreUpdateScreen extends Component {
                 //     }
                 // }
 
-                if(resultJson.batFirstTeamId === resultJson.teamFirstId){
+                if (resultJson.batFirstTeamId === resultJson.teamFirstId) {
                     wonToss = resultJson.teamFirstName + " won the toss and elected to bat"
-                }else{
+                } else {
                     wonToss = resultJson.teamSecondName + " won the toss and elected to bowl"
                 }
 
 
                 let score = resultJson.batFirstTeamId === resultJson.teamFirstId ?
                     resultJson.teamFirstInning.score : resultJson.teamSecondInning.score
+
+                let extra = resultJson.batFirstTeamId === resultJson.teamFirstId ?
+                    resultJson.teamFirstInning.extra ?
+                        resultJson.teamFirstInning.extra : 0 :
+                    resultJson.teamSecondInning.extra ?
+                        resultJson.teamSecondInning.extra : 0
 
                 let currentOverRun = resultJson.currentOverRun !== undefined ? resultJson.currentOverRun : []
                 let currentOverBowlRun = resultJson.currentOverBowlRun !== undefined ? resultJson.currentOverBowlRun : 0
@@ -194,6 +206,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                         currentOverBowlRun: currentOverBowlRun,
                         batsman1Runs: batsman1Runs,
                         runs: score,
+                        extra: extra,
                         batsman2Runs: batsman2Runs,
                         batsman1Bowls: batsman1Bowls,
                         batsman2Bowls: batsman2Bowls,
@@ -205,6 +218,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                     this.setState({
                         batsman1Runs: batsman1Runs,
                         runs: score,
+                        extra: extra,
                         currentOverBowl: currentOverBowl,
                         currentOverBowlRun: currentOverBowlRun,
                         currentOverBowlerOver: currentOverBowlerOver,
@@ -227,6 +241,7 @@ class LiveMatchScoreUpdateScreen extends Component {
         let list = []
         list.push(...this.state.currentOverRun)
         let lastRuns = this.state.runs
+        let lastExtra = this.state.extra
         console.log("updateRun...1", list)
         isBatsman1 = this.state.isStrikerSelection
         console.log("updateRun...2")
@@ -268,14 +283,14 @@ class LiveMatchScoreUpdateScreen extends Component {
                 if (this.state.currentOverBowl >= 6) {
                     currentOverBowlerOver = currentOverBowlerOver + 1
                     overs = overs + 1
-                    if(overs >= this.state.totalOvers){
-                        if(this.state.battingTeamId === this.state.batFirstTeamId){
+                    if (overs >= this.state.totalOvers) {
+                        if (this.state.battingTeamId === this.state.batFirstTeamId) {
                             Alert.alert("", "First inning completed")
-                        }else{
+                        } else {
                             Alert.alert("", "Match completed")
                         }
 
-                    }else{
+                    } else {
                         Alert.alert("", "Over completed",
                             [
                                 {
@@ -306,7 +321,6 @@ class LiveMatchScoreUpdateScreen extends Component {
                 console.log("currentOverRun: ", this.state.currentOverRun)
 
                 let path = "/liveMatchList/" + this.state.firebaseID
-                console.log("updateRun...5")
 
                 database().ref(path)
                     .orderByValue()
@@ -384,41 +398,41 @@ class LiveMatchScoreUpdateScreen extends Component {
                             console.log("resultJson.teamSecondSquad ", resultJson.teamFirstSquad[nonStrikerPlayerIndex])
                         }
 
-                        if(this.state.bowlingTeamId === 1){
+                        if (this.state.bowlingTeamId === 1) {
                             let bowlerIndex = resultJson.teamFirstSquad.findIndex(
                                 (item) => item.id === this.state.bowlerId)
                             let bowlerData = resultJson.teamFirstSquad.filter(
                                 (item) => item.id === this.state.bowlerId)
-                            console.log("1st bowlerData",bowlerData)
+                            console.log("1st bowlerData", bowlerData)
                             resultJson.teamFirstSquad[bowlerIndex].currentOverBowlRun = currentOverBowlRun
                             resultJson.teamFirstSquad[bowlerIndex].currentOverBowl = currentOverBowl
                             resultJson.teamFirstSquad[bowlerIndex].currentOverBowlerOver = currentOverBowlerOver
-                        }else{
+                        } else {
                             let bowlerIndex = resultJson.teamSecondSquad.findIndex(
                                 (item) => item.id === this.state.bowlerId)
                             let bowlerData = resultJson.teamSecondSquad.filter(
                                 (item) => item.id === this.state.bowlerId)
-                            console.log("2nd bowlerData",bowlerData)
+                            console.log("2nd bowlerData", bowlerData)
                             resultJson.teamSecondSquad[bowlerIndex].currentOverBowlRun = currentOverBowlRun
                             resultJson.teamSecondSquad[bowlerIndex].currentOverBowl = currentOverBowl
                             resultJson.teamSecondSquad[bowlerIndex].currentOverBowlerOver = currentOverBowlerOver
                         }
 
-                        if(resultJson.batFirstTeamId === resultJson.teamFirstId){
+                        if (resultJson.batFirstTeamId === resultJson.teamFirstId) {
                             resultJson.teamFirstInning.score = this.state.runs
                             resultJson.teamFirstInning.overs = overs
                             resultJson.teamFirstInning.wickets = 0
-                        }else{
+                        } else {
                             resultJson.teamSecondInning.score = this.state.runs
                             resultJson.teamSecondInning.overs = overs
                             resultJson.teamSecondInning.wickets = 0
                         }
 
                         console.log("updateRun...7")
-                        if(overs >= resultJson.noOfOvers){
-                            if(this.state.battingTeamId === resultJson.batFirstTeamId){
+                        if (overs >= resultJson.noOfOvers) {
+                            if (this.state.battingTeamId === resultJson.batFirstTeamId) {
                                 alert("1st inning finish")
-                            }else{
+                            } else {
                                 alert("Match complete")
                             }
 
@@ -439,14 +453,175 @@ class LiveMatchScoreUpdateScreen extends Component {
                     })
             })
         } else {
-            list.push("WD\n" + run)
-            this.setState({
-                runs: lastRuns + run,
-                currentOverRun: list
-            })
+
+            let path = "/liveMatchList/" + this.state.firebaseID
+            database().ref(path)
+                .orderByValue()
+                .once('value')
+                .then((result) => {
+                    let resultJson = JSON.parse(JSON.stringify(result))
+                    if (resultJson.batFirstTeamId === resultJson.teamFirstId) {
+                        resultJson.teamFirstInning.score = lastRuns + run
+                        resultJson.teamFirstInning.extra = lastExtra + run
+                    } else {
+                        resultJson.teamSecondInning.score = lastRuns + run
+                        resultJson.teamSecondInning.extra = lastExtra + run
+                    }
+
+                    database()
+                        .ref(path)
+                        .update({
+                            teamFirstInning: resultJson.teamFirstInning,
+                            teamSecondInning: resultJson.teamSecondInning,
+                        })
+                        .then((result) => {
+                            console.log('Data updated.', result)
+                        });
+
+                    list.push("WD\n" + run)
+                    this.setState({
+                        runs: lastRuns + run,
+                        extra: lastExtra + run,
+                        currentOverRun: list
+                    })
+                })
         }
 
     }
+
+    handleExtraRun = (text) => {
+        extraRun = text
+    }
+    viewForExtraRun() {
+        return (
+            <Modal
+                animationType="fade"
+                transparent={true}
+                style={{
+                    alignSelf: 'center',
+                }}
+                visible={this.state.isSelectExtraModel}>
+                <View style={{
+                    borderColor:colors.STATUS_BAR_COLOR,
+                    borderWidth:1,
+                    borderRadius:5,
+                    backgroundColor: colors.WHITE,
+                    alignSelf: 'center',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '90%',
+                    position: 'absolute',
+                    top: '30%',
+                    // left: 0,
+                    // right: 0,
+
+                }}>
+                    <Text
+                        style={{
+                            fontFamily: fontStyle.MontserratBold,
+                            fontSize: 20,
+                            marginTop: 10,
+                            alignSelf: 'center',
+                            color: colors.PRIMARY_COLOR
+                        }}>{Constants.ENTER_RUN}</Text>
+                    <View style={{
+                        // flex: 1,
+                    }}>
+                        <TextInput
+                            style={{
+                                marginTop: 20,
+                                marginEnd: 20,
+                                marginStart: 20,
+                                height: 50,
+                                width:100,
+                                borderColor: '#76B04315',
+                                borderWidth: 1,
+                                paddingStart: 10,
+                                textAlign:'center',
+                                fontFamily: fontStyle.MontserratRegular,
+                                fontSize: 14,
+                            }}
+                            returnKeyType={"next"}
+                            underlineColorAndroid="transparent"
+                            placeholder={Constants.RUN}
+                            placeholderTextColor={colors.TXT_HINT_COLOR}
+                            autoCapitalize="none"
+                            keyboardType={"number-pad"}
+                            onChangeText={this.handleExtraRun}
+                        />
+                    </View>
+                    <View style={{
+                        flexDirection: 'row',
+                        marginStart: 20,
+                        marginTop: 20,
+                        marginEnd: 20,
+                        marginBottom: 8,
+                    }}>
+                        <TouchableOpacity
+                            onPress={()=>{
+                                this.setState({
+                                    isSelectExtraModel: false
+                                })
+                            }}
+                            style={{
+                                flex: 1,
+                            }}>
+                            <Text
+                                style={{
+                                    width: '95%',
+                                    fontFamily: fontStyle.MontserratBold,
+                                    fontSize: 12,
+                                    marginEnd: 10,
+                                    paddingTop: 16,
+                                    alignSelf: 'center',
+                                    paddingBottom: 16,
+                                    textAlign: 'center',
+                                    paddingStart: 20,
+                                    paddingEnd: 20,
+                                    borderRadius: 6,
+                                    backgroundColor: colors.PRIMARY_COLOR,
+                                    color: colors.WHITE
+                                }}>{
+                                Constants.CANCEL
+                            }</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            onPress={()=>{
+                                this.setState({
+                                    isSelectExtraModel: false
+                                },()=>{
+                                    this.updateRun(extraRun, 1, true, true)
+                                })
+                            }}
+                            style={{
+                                flex: 1,
+                            }}>
+                            <Text
+                                style={{
+                                    width: '95%',
+                                    fontFamily: fontStyle.MontserratBold,
+                                    fontSize: 12,
+                                    marginEnd: 10,
+                                    paddingTop: 16,
+                                    alignSelf: 'center',
+                                    paddingBottom: 16,
+                                    textAlign: 'center',
+                                    paddingStart: 20,
+                                    paddingEnd: 20,
+                                    borderRadius: 6,
+                                    backgroundColor: colors.STATUS_BAR_COLOR,
+                                    color: colors.WHITE
+                                }}>{
+                                Constants.OK
+                            }</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+        )
+    }
+
 
     render() {
         return (
@@ -490,7 +665,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                             color: colors.WHITE
                         }}>{this.state.battingTeamName}</Text>
                 </View>
-
+                {this.viewForExtraRun()}
                 <Modal
                     animationType="fade"
                     transparent={true}
@@ -659,7 +834,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                             let currentOverBowlerOver = 0
                                             let isStyleSet = false
 
-                                            if(this.state.bowlingTeamId === 1){
+                                            if (this.state.bowlingTeamId === 1) {
                                                 let bowlerIndex = resultJson.teamFirstSquad.findIndex(
                                                     (item) => item.id === list[index].id)
                                                 let bowlerData = resultJson.teamFirstSquad.filter(
@@ -675,25 +850,25 @@ class LiveMatchScoreUpdateScreen extends Component {
                                                         resultJson.teamFirstSquad[bowlerIndex].currentOverBowlRun : 0
                                                 isStyleSet = resultJson.teamFirstSquad[bowlerIndex].bowlingStyle === undefined ||
                                                     resultJson.teamFirstSquad[bowlerIndex].bowlingStyle === null
-                                            }else{
+                                            } else {
                                                 let bowlerIndex = resultJson.teamSecondSquad.findIndex(
                                                     (item) => item.id === list[index].id)
                                                 let bowlerData = resultJson.teamSecondSquad.filter(
                                                     (item) => item.id === list[index].id)
                                                 currentOverBowlerOver =
                                                     resultJson.teamSecondSquad[bowlerIndex].currentOverBowlerOver !== undefined ?
-                                                    resultJson.teamSecondSquad[bowlerIndex].currentOverBowlerOver : 0
+                                                        resultJson.teamSecondSquad[bowlerIndex].currentOverBowlerOver : 0
                                                 currentOverBowl =
                                                     resultJson.teamSecondSquad[bowlerIndex].currentOverBowl !== undefined ?
-                                                    resultJson.teamSecondSquad[bowlerIndex].currentOverBowl : 0
+                                                        resultJson.teamSecondSquad[bowlerIndex].currentOverBowl : 0
                                                 currentOverBowlRun =
                                                     resultJson.teamSecondSquad[bowlerIndex].currentOverBowlRun !== undefined ?
-                                                    resultJson.teamSecondSquad[bowlerIndex].currentOverBowlRun : 0
+                                                        resultJson.teamSecondSquad[bowlerIndex].currentOverBowlRun : 0
                                                 isStyleSet = resultJson.teamSecondSquad[bowlerIndex].bowlingStyle === undefined ||
                                                     resultJson.teamSecondSquad[bowlerIndex].bowlingStyle === null
                                             }
 
-                                            if(currentOverBowl>=6){
+                                            if (currentOverBowl >= 6) {
                                                 currentOverBowl = 0
                                             }
                                             this.setState({
@@ -701,7 +876,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                                 bowlerName: list[index].name,
                                                 bowlerId: list[index].id,
                                                 isSelectBowlingModel: false,
-                                                isSelectBowlingStyleModel:isStyleSet,
+                                                isSelectBowlingStyleModel: isStyleSet,
                                                 currentOverBowl: currentOverBowl,
                                                 currentOverBowlRun: currentOverBowlRun,
                                                 currentOverBowlerOver: currentOverBowlerOver,
@@ -1182,19 +1357,19 @@ class LiveMatchScoreUpdateScreen extends Component {
                                             .once('value')
                                             .then((result) => {
                                                 let resultJson = JSON.parse(JSON.stringify(result))
-                                                if(this.state.bowlingTeamId === 1){
+                                                if (this.state.bowlingTeamId === 1) {
                                                     let bowlerIndex = resultJson.teamFirstSquad.findIndex(
                                                         (item) => item.id === this.state.bowlerId)
                                                     let bowlerData = resultJson.teamFirstSquad.filter(
                                                         (item) => item.id === this.state.bowlerId)
-                                                    console.log("1st bowlerData",bowlerData)
+                                                    console.log("1st bowlerData", bowlerData)
                                                     resultJson.teamFirstSquad[bowlerIndex].bowlingStyle = this.state.isSelectBowlingStyleName
-                                                }else{
+                                                } else {
                                                     let bowlerIndex = resultJson.teamSecondSquad.findIndex(
                                                         (item) => item.id === this.state.bowlerId)
                                                     let bowlerData = resultJson.teamSecondSquad.filter(
                                                         (item) => item.id === this.state.bowlerId)
-                                                    console.log("2nd bowlerData",bowlerData)
+                                                    console.log("2nd bowlerData", bowlerData)
                                                     resultJson.teamSecondSquad[bowlerIndex].bowlingStyle = this.state.isSelectBowlingStyleName
                                                 }
 
@@ -1553,7 +1728,11 @@ class LiveMatchScoreUpdateScreen extends Component {
 
                         <TouchableOpacity
                             onPress={() => {
-                                this.updateRun(1, 1, true, true)
+                                extraRun = 0
+                                this.setState({
+                                    isSelectExtraModel: true
+                                })
+                                //this.updateRun(1, 1, true, true)
                             }}
                             style={{
                                 width: '100%',

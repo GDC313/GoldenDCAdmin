@@ -42,6 +42,8 @@ export default {
   START_INNINGS:"Start Innings",
   START_SCORING:"Start Scoring",
   SELECT_BOWLER:"Select Bowler",
+  ENTER_RUN:"Enter Run",
+  RUN:"Run",
   SELECT_BASTMAN:"Select Batsman",
   BOWLING_STYLE:"Bowling Style",
   WHAT_BOWLING_STYLE:"What the style of ",
