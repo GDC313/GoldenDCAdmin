@@ -236,7 +236,7 @@ class LiveMatchScoreUpdateScreen extends Component {
             })
     }
 
-    updateRun(run, bowl, isBatsman1, isWideOrNoBall) {
+    updateRun(run, bowl, isBatsman1, isWideOrNoBall, isWicket) {
         console.log("updateRun...", this.state.currentOverRun)
         let list = []
         list.push(...this.state.currentOverRun)
@@ -250,7 +250,11 @@ class LiveMatchScoreUpdateScreen extends Component {
             console.log("updateRun...22", run)
             console.log("updateRun...2221", list)
             // try {
-            list.push(run)
+            if(isWicket){
+                list.push("W")
+            }else{
+                list.push(run)
+            }
             // }catch (e) {
             //     console.log("Error: ",e)
             // }
@@ -591,7 +595,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                                 this.setState({
                                     isSelectExtraModel: false
                                 },()=>{
-                                    this.updateRun(extraRun, 1, true, true)
+                                    this.updateRun(extraRun, 1, true, true, false)
                                 })
                             }}
                             style={{
@@ -1686,7 +1690,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                     }}>
                         <TouchableOpacity
                             onPress={() => {
-                                this.updateRun(0, 1, true, false)
+                                this.updateRun(0, 1, true, false, false)
                             }}
                             style={{
                                 width: '100%',
@@ -1707,7 +1711,7 @@ class LiveMatchScoreUpdateScreen extends Component {
 
                         <TouchableOpacity
                             onPress={() => {
-                                this.updateRun(3, 1, true, false)
+                                this.updateRun(3, 1, true, false, false)
                             }}
                             style={{
                                 width: '100%',
@@ -1760,7 +1764,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                     }}>
                         <TouchableOpacity
                             onPress={() => {
-                                this.updateRun(1, 1, true, false)
+                                this.updateRun(1, 1, true, false, false)
                             }}
                             style={{
                                 width: '100%',
@@ -1781,7 +1785,7 @@ class LiveMatchScoreUpdateScreen extends Component {
 
                         <TouchableOpacity
                             onPress={() => {
-                                this.updateRun(4, 1, true, false)
+                                this.updateRun(4, 1, true, false, false)
                             }}
                             style={{
                                 width: '100%',
@@ -1802,7 +1806,7 @@ class LiveMatchScoreUpdateScreen extends Component {
 
                         <TouchableOpacity
                             onPress={() => {
-                                this.updateRun(1, 1, true, true)
+                                this.updateRun(1, 1, true, true, false)
                             }}
                             style={{
                                 width: '100%',
@@ -1829,7 +1833,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                     }}>
                         <TouchableOpacity
                             onPress={() => {
-                                this.updateRun(2, 1, true, false)
+                                this.updateRun(2, 1, true, false, false)
                             }}
                             style={{
                                 width: '100%',
@@ -1850,7 +1854,7 @@ class LiveMatchScoreUpdateScreen extends Component {
 
                         <TouchableOpacity
                             onPress={() => {
-                                this.updateRun(6, 1, true, false)
+                                this.updateRun(6, 1, true, false, false)
                             }}
                             style={{
                                 width: '100%',
@@ -1871,7 +1875,7 @@ class LiveMatchScoreUpdateScreen extends Component {
 
                         <TouchableOpacity
                             onPress={() => {
-                                this.updateRun(0, 1, true, false)
+                                this.updateRun(0, 1, true, false, false)
                             }}
                             style={{
                                 width: '100%',
@@ -1921,7 +1925,7 @@ class LiveMatchScoreUpdateScreen extends Component {
 
                         <TouchableOpacity
                             onPress={() => {
-                                this.updateRun(5, 1, true, false)
+                                this.updateRun(5, 1, true, false, false)
                             }}
                             style={{
                                 width: '100%',
@@ -1942,7 +1946,7 @@ class LiveMatchScoreUpdateScreen extends Component {
 
                         <TouchableOpacity
                             onPress={() => {
-                                this.updateRun(0, 1, true, false)
+                                this.updateRun(0, 1, true, false, true)
                             }}
                             style={{
                                 width: '100%',
@@ -1962,7 +1966,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                         </TouchableOpacity>
                         <TouchableOpacity
                             onPress={() => {
-                                this.updateRun(1, 1, true, false)
+                                this.updateRun(1, 1, true, false, false)
                             }}
                             style={{
                                 width: '100%',
