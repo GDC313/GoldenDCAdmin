@@ -118,6 +118,8 @@ class LiveMatchScoreUpdateScreen extends Component {
                     resultJson.isFirstSessionCompleted === true
                 let overs = resultJson.batFirstTeamId === resultJson.teamFirstId ?
                     resultJson.teamFirstInning.overs : resultJson.teamSecondInning.overs
+                let wickets = resultJson.batFirstTeamId === resultJson.teamFirstId ?
+                    resultJson.teamFirstInning.wickets : resultJson.teamSecondInning.wickets
 
                 if (!isFirstSessionCompleted) {
                     if (overs >= resultJson.noOfOvers) {
@@ -202,6 +204,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                         isSelectBowlingModel: true,
                         currentOverRun: [],
                         overs: overs,
+                        wickets: wickets,
                         currentOverBowl: 0,
                         currentOverBowlRun: currentOverBowlRun,
                         batsman1Runs: batsman1Runs,
@@ -223,6 +226,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                         currentOverBowlRun: currentOverBowlRun,
                         currentOverBowlerOver: currentOverBowlerOver,
                         overs: overs,
+                        wickets: wickets,
                         currentOverRun: currentOverRun,
                         batsman2Runs: batsman2Runs,
                         batsman1Bowls: batsman1Bowls,
@@ -250,16 +254,6 @@ class LiveMatchScoreUpdateScreen extends Component {
             console.log("updateRun...22", run)
             console.log("updateRun...2221", list)
             // try {
-            if(isWicket){
-                list.push("W")
-            }else{
-                list.push(run)
-            }
-            // }catch (e) {
-            //     console.log("Error: ",e)
-            // }
-            console.log("updateRun...222", list)
-
             let batsman1Runs = this.state.batsman1Runs
             let batsman1Bowls = this.state.batsman1Bowls
             let batsman2Runs = this.state.batsman2Runs
@@ -267,195 +261,297 @@ class LiveMatchScoreUpdateScreen extends Component {
             let currentOverBowl = this.state.currentOverBowl + 1
             let currentOverBowlerOver = this.state.currentOverBowlerOver
             let overs = this.state.overs
-            let currentOverBowlRun = this.state.currentOverBowlRun + run
-            console.log("updateRun...3")
+            let wickets = this.state.wickets
 
-            this.setState({
-                runs: lastRuns + run,
-                isStrikerSelection: (currentOverBowl + 1) === 6 || run === 1 || run === 3 ?
-                    !isBatsman1 : isBatsman1,
-                currentOverBowlRun: currentOverBowlRun,
-                batsman1Runs: isBatsman1 ? batsman1Runs + run : batsman1Runs,
-                batsman2Runs: !isBatsman1 ? batsman2Runs + run : batsman2Runs,
-                batsman1Bowls: isBatsman1 ? batsman1Bowls + 1 : batsman1Bowls,
-                batsman2Bowls: !isBatsman1 ? batsman2Bowls + 1 : batsman2Bowls,
-                currentOverRun: list,
-                currentOverBowl: currentOverBowl
-            }, () => {
-                console.log("updateRun...4")
-
-                if (this.state.currentOverBowl >= 6) {
-                    currentOverBowlerOver = currentOverBowlerOver + 1
-                    overs = overs + 1
-                    if (overs >= this.state.totalOvers) {
-                        if (this.state.battingTeamId === this.state.batFirstTeamId) {
-                            Alert.alert("", "First inning completed")
-                        } else {
-                            Alert.alert("", "Match completed")
-                        }
-
-                    } else {
-                        Alert.alert("", "Over completed",
-                            [
-                                {
-                                    text: "Select bowler", onPress: () => {
-                                        this.setState({
-                                            isSelectBowlingModel: true,
-                                            currentOverRun: [],
-                                            overs: overs,
-                                            currentOverBowl: 0,
-                                        })
-                                    }
-                                }
-                            ]
-                        )
-                    }
-                } else {
-                    // out: "c Neil Rock b Craig Young",
-                    //     run: "1",
-                    //     ball: "4",
-                    //     four: "0",
-                    //     six: "0"
-                }
-                // console.log("isSelectBowlingModel: ", this.state.isSelectBowlingModel)
-                // console.log("strikerId: ", this.state.strikerId)
-                // console.log("nonStrikerId: ", this.state.nonStrikerId)
-                // console.log("batsman1Runs: ", this.state.batsman1Runs)
-                // console.log("batsman2Runs: ", this.state.batsman2Runs)
-                console.log("currentOverRun: ", this.state.currentOverRun)
-
-                let path = "/liveMatchList/" + this.state.firebaseID
-
-                database().ref(path)
-                    .orderByValue()
-                    .once('value')
-                    .then((result) => {
-                        let resultJson = JSON.parse(JSON.stringify(result))
-
-                        let strikerPlayerIndex = resultJson.teamFirstSquad.findIndex(
-                            (item) => item.id === this.state.strikerId)
-                        if (strikerPlayerIndex === -1) {
-                            strikerPlayerIndex = resultJson.teamSecondSquad.findIndex(
-                                (item) => item.id === this.state.strikerId)
-                            resultJson.teamSecondSquad[strikerPlayerIndex].run = this.state.batsman1Runs
-                            resultJson.teamSecondSquad[strikerPlayerIndex].bowl = this.state.batsman1Bowls
-                            if (run === 4) {
-                                resultJson.teamSecondSquad[strikerPlayerIndex].four =
-                                    resultJson.teamSecondSquad[strikerPlayerIndex].four !== undefined ?
-                                        resultJson.teamSecondSquad[strikerPlayerIndex].four + 1 : 0
-                            }
-                            if (run === 6) {
-                                resultJson.teamSecondSquad[strikerPlayerIndex].four =
-                                    resultJson.teamSecondSquad[strikerPlayerIndex].six !== undefined ?
-                                        resultJson.teamSecondSquad[strikerPlayerIndex].six + 1 : 0
-                            }
-
-                            console.log("resultJson.teamSecondSquad ", resultJson.teamSecondSquad[nonStrikerPlayerIndex])
-                        } else {
-                            resultJson.teamFirstSquad[strikerPlayerIndex].run = this.state.batsman1Runs
-                            resultJson.teamFirstSquad[strikerPlayerIndex].bowl = this.state.batsman1Bowls
-                            if (run === 4) {
-                                resultJson.teamFirstSquad[strikerPlayerIndex].four =
-                                    resultJson.teamFirstSquad[strikerPlayerIndex].four !== undefined ?
-                                        resultJson.teamFirstSquad[strikerPlayerIndex].four + 1 : 0
-                            }
-                            if (run === 6) {
-                                resultJson.teamFirstSquad[strikerPlayerIndex].four =
-                                    resultJson.teamFirstSquad[strikerPlayerIndex].six !== undefined ?
-                                        resultJson.teamFirstSquad[strikerPlayerIndex].six + 1 : 0
-                            }
-                            console.log("resultJson.teamFirstSquad ", resultJson.teamFirstSquad[strikerPlayerIndex])
-                        }
-                        console.log("updateRun...6")
-
-                        let nonStrikerPlayerIndex = resultJson.teamFirstSquad.findIndex(
-                            (item) => item.id === this.state.nonStrikerId)
-                        if (nonStrikerPlayerIndex === -1) {
-                            nonStrikerPlayerIndex = resultJson.teamSecondSquad.findIndex(
-                                (item) => item.id === this.state.nonStrikerId)
-                            resultJson.teamSecondSquad[nonStrikerPlayerIndex].run = this.state.batsman2Runs
-                            resultJson.teamSecondSquad[strikerPlayerIndex].bowl = this.state.batsman2Bowls
-                            if (run === 4) {
-                                resultJson.teamSecondSquad[strikerPlayerIndex].four =
-                                    resultJson.teamSecondSquad[strikerPlayerIndex].four !== undefined ?
-                                        resultJson.teamSecondSquad[strikerPlayerIndex].four + 1 : 0
-                            }
-                            if (run === 6) {
-                                resultJson.teamSecondSquad[strikerPlayerIndex].four =
-                                    resultJson.teamSecondSquad[strikerPlayerIndex].six !== undefined ?
-                                        resultJson.teamSecondSquad[strikerPlayerIndex].six + 1 : 0
-                            }
-                            console.log("resultJson.teamSecondSquad ", resultJson.teamSecondSquad[nonStrikerPlayerIndex])
-                        } else {
-                            resultJson.teamFirstSquad[nonStrikerPlayerIndex].run = this.state.batsman2Runs
-                            resultJson.teamFirstSquad[nonStrikerPlayerIndex].bowl = this.state.batsman2Bowls
-                            if (run === 4) {
-                                resultJson.teamFirstSquad[nonStrikerPlayerIndex].four =
-                                    resultJson.teamFirstSquad[nonStrikerPlayerIndex].four !== undefined ?
-                                        resultJson.teamFirstSquad[nonStrikerPlayerIndex].four + 1 : 0
-                            }
-                            if (run === 6) {
-                                resultJson.teamFirstSquad[nonStrikerPlayerIndex].four =
-                                    resultJson.teamFirstSquad[nonStrikerPlayerIndex].six !== undefined ?
-                                        resultJson.teamFirstSquad[nonStrikerPlayerIndex].six + 1 : 0
-                            }
-                            console.log("resultJson.teamSecondSquad ", resultJson.teamFirstSquad[nonStrikerPlayerIndex])
-                        }
-
-                        if (this.state.bowlingTeamId === 1) {
-                            let bowlerIndex = resultJson.teamFirstSquad.findIndex(
-                                (item) => item.id === this.state.bowlerId)
-                            let bowlerData = resultJson.teamFirstSquad.filter(
-                                (item) => item.id === this.state.bowlerId)
-                            console.log("1st bowlerData", bowlerData)
-                            resultJson.teamFirstSquad[bowlerIndex].currentOverBowlRun = currentOverBowlRun
-                            resultJson.teamFirstSquad[bowlerIndex].currentOverBowl = currentOverBowl
-                            resultJson.teamFirstSquad[bowlerIndex].currentOverBowlerOver = currentOverBowlerOver
-                        } else {
-                            let bowlerIndex = resultJson.teamSecondSquad.findIndex(
-                                (item) => item.id === this.state.bowlerId)
-                            let bowlerData = resultJson.teamSecondSquad.filter(
-                                (item) => item.id === this.state.bowlerId)
-                            console.log("2nd bowlerData", bowlerData)
-                            resultJson.teamSecondSquad[bowlerIndex].currentOverBowlRun = currentOverBowlRun
-                            resultJson.teamSecondSquad[bowlerIndex].currentOverBowl = currentOverBowl
-                            resultJson.teamSecondSquad[bowlerIndex].currentOverBowlerOver = currentOverBowlerOver
-                        }
-
-                        if (resultJson.batFirstTeamId === resultJson.teamFirstId) {
-                            resultJson.teamFirstInning.score = this.state.runs
-                            resultJson.teamFirstInning.overs = overs
-                            resultJson.teamFirstInning.wickets = 0
-                        } else {
-                            resultJson.teamSecondInning.score = this.state.runs
-                            resultJson.teamSecondInning.overs = overs
-                            resultJson.teamSecondInning.wickets = 0
-                        }
-
-                        console.log("updateRun...7")
-                        if (overs >= resultJson.noOfOvers) {
-                            if (this.state.battingTeamId === resultJson.batFirstTeamId) {
-                                alert("1st inning finish")
+            if (isWicket) {
+                list.push("W")
+                console.log("isBatsman1", isBatsman1)
+                this.setState({
+                    batsman1Bowls: isBatsman1 ? batsman1Bowls + 1 : batsman1Bowls,
+                    batsman2Bowls: !isBatsman1 ? batsman2Bowls + 1 : batsman2Bowls,
+                    currentOverRun: list,
+                    currentOverBowl: currentOverBowl
+                }, () => {
+                    console.log("updateRun...4")
+                    if (this.state.currentOverBowl >= 6) {
+                        currentOverBowlerOver = currentOverBowlerOver + 1
+                        overs = overs + 1
+                        if (overs >= this.state.totalOvers) {
+                            if (this.state.battingTeamId === this.state.batFirstTeamId) {
+                                Alert.alert("", "First inning completed")
                             } else {
-                                alert("Match complete")
+                                Alert.alert("", "Match completed")
+                            }
+                        } else {
+                            Alert.alert("", "Over completed",
+                                [
+                                    {
+                                        text: "Select bowler", onPress: () => {
+                                            this.setState({
+                                                isSelectBowlingModel: true,
+                                                currentOverRun: [],
+                                                overs: overs,
+                                                currentOverBowl: 0,
+                                            })
+                                        }
+                                    }
+                                ]
+                            )
+                        }
+                    }
+                    let path = "/liveMatchList/" + this.state.firebaseID
+                    database().ref(path)
+                        .orderByValue()
+                        .once('value')
+                        .then((result) => {
+                            let resultJson = JSON.parse(JSON.stringify(result))
+                            if (resultJson.batFirstTeamId === resultJson.teamFirstId) {
+                                //TODO: Bowler
+                                let bowlerIndex = resultJson.teamSecondSquad.findIndex(
+                                    (item) => item.id === this.state.bowlerId)
+                                let bowlerData = resultJson.teamSecondSquad.filter(
+                                    (item) => item.id === this.state.bowlerId)
+
+                                //TODO: Batsman
+                                let strikerPlayerIndex = resultJson.teamFirstSquad.findIndex(
+                                    (item) => item.id === this.state.strikerId)
+                                console.log("strikerPlayerIndex first: ",strikerPlayerIndex)
+                                resultJson.teamFirstInning.wickets = wickets + 1
+                                resultJson.teamFirstInning[strikerPlayerIndex].out = "b "+ bowlerData.name
+
+                                //TODO: Bowler calculation
+                                console.log("1st bowlerData", bowlerData)
+                                resultJson.teamSecondSquad[bowlerIndex].currentOverBowl = currentOverBowl
+                                resultJson.teamSecondSquad[bowlerIndex].currentOverBowlerOver = currentOverBowlerOver
+                                resultJson.teamSecondSquad[bowlerIndex].wickets =
+                                    resultJson.teamSecondSquad[bowlerIndex].wickets !== undefined ?
+                                        resultJson.teamSecondSquad[bowlerIndex].wickets + 1 : 1
+
+                            }else{
+
+                                //TODO: Bowler
+                                let bowlerIndex = resultJson.teamFirstSquad.findIndex(
+                                    (item) => item.id === this.state.bowlerId)
+                                let bowlerData = resultJson.teamFirstSquad.filter(
+                                    (item) => item.id === this.state.bowlerId)
+                                console.log("1st bowlerData", bowlerData)
+
+                                //TODO: Batsman
+                                let strikerPlayerIndex = resultJson.teamSecondSquad.findIndex(
+                                    (item) => item.id === this.state.strikerId)
+                                console.log("strikerPlayerIndex 2nd: ",strikerPlayerIndex)
+                                resultJson.teamSecondInning.wickets = wickets + 1
+                                resultJson.teamSecondSquad[strikerPlayerIndex].out = "b "+ bowlerData.name
+
+                                //TODO: Bowler calculation
+                                resultJson.teamFirstSquad[bowlerIndex].currentOverBowl = currentOverBowl
+                                resultJson.teamFirstSquad[bowlerIndex].currentOverBowlerOver = currentOverBowlerOver
+                                resultJson.teamFirstSquad[bowlerIndex].wickets =
+                                    resultJson.teamFirstSquad[bowlerIndex].wickets !== undefined ?
+                                        resultJson.teamFirstSquad[bowlerIndex].wickets + 1 : 1
+                            }
+                            database()
+                                .ref(path)
+                                .update({
+                                    currentOverRun: this.state.currentOverRun,
+                                    currentOverBowl: this.state.currentOverBowl,
+                                    teamFirstInning: resultJson.teamFirstInning,
+                                    teamSecondInning: resultJson.teamSecondInning,
+                                    teamFirstSquad: resultJson.teamFirstSquad,
+                                    teamSecondSquad: resultJson.teamSecondSquad
+                                })
+                                .then((result) => {
+                                    console.log('Data updated.', result)
+                                });
+
+
+                        })
+                })
+            } else {
+                list.push(run)
+                console.log("updateRun...222", list)
+                let currentOverBowlRun = this.state.currentOverBowlRun + run
+                console.log("updateRun...3")
+
+                this.setState({
+                    runs: lastRuns + run,
+                    isStrikerSelection: (currentOverBowl + 1) === 6 || run === 1 || run === 3 ?
+                        !isBatsman1 : isBatsman1,
+                    currentOverBowlRun: currentOverBowlRun,
+                    batsman1Runs: isBatsman1 ? batsman1Runs + run : batsman1Runs,
+                    batsman2Runs: !isBatsman1 ? batsman2Runs + run : batsman2Runs,
+                    batsman1Bowls: isBatsman1 ? batsman1Bowls + 1 : batsman1Bowls,
+                    batsman2Bowls: !isBatsman1 ? batsman2Bowls + 1 : batsman2Bowls,
+                    currentOverRun: list,
+                    currentOverBowl: currentOverBowl
+                }, () => {
+                    console.log("updateRun...4")
+
+                    if (this.state.currentOverBowl >= 6) {
+                        currentOverBowlerOver = currentOverBowlerOver + 1
+                        overs = overs + 1
+                        if (overs >= this.state.totalOvers) {
+                            if (this.state.battingTeamId === this.state.batFirstTeamId) {
+                                Alert.alert("", "First inning completed")
+                            } else {
+                                Alert.alert("", "Match completed")
                             }
 
+                        } else {
+                            Alert.alert("", "Over completed",
+                                [
+                                    {
+                                        text: "Select bowler", onPress: () => {
+                                            this.setState({
+                                                isSelectBowlingModel: true,
+                                                currentOverRun: [],
+                                                overs: overs,
+                                                currentOverBowl: 0,
+                                            })
+                                        }
+                                    }
+                                ]
+                            )
                         }
-                        database()
-                            .ref(path)
-                            .update({
-                                currentOverRun: this.state.currentOverRun,
-                                currentOverBowl: this.state.currentOverBowl,
-                                teamFirstInning: resultJson.teamFirstInning,
-                                teamSecondInning: resultJson.teamSecondInning,
-                                teamFirstSquad: resultJson.teamFirstSquad,
-                                teamSecondSquad: resultJson.teamSecondSquad
-                            })
-                            .then((result) => {
-                                console.log('Data updated.', result)
-                            });
-                    })
-            })
+                    }
+                    // console.log("isSelectBowlingModel: ", this.state.isSelectBowlingModel)
+                    // console.log("strikerId: ", this.state.strikerId)
+                    // console.log("nonStrikerId: ", this.state.nonStrikerId)
+                    // console.log("batsman1Runs: ", this.state.batsman1Runs)
+                    // console.log("batsman2Runs: ", this.state.batsman2Runs)
+                    console.log("currentOverRun: ", this.state.currentOverRun)
+                    let path = "/liveMatchList/" + this.state.firebaseID
+                    database().ref(path)
+                        .orderByValue()
+                        .once('value')
+                        .then((result) => {
+                            let resultJson = JSON.parse(JSON.stringify(result))
+
+                            let strikerPlayerIndex = resultJson.teamFirstSquad.findIndex(
+                                (item) => item.id === this.state.strikerId)
+                            if (strikerPlayerIndex === -1) {
+                                strikerPlayerIndex = resultJson.teamSecondSquad.findIndex(
+                                    (item) => item.id === this.state.strikerId)
+                                resultJson.teamSecondSquad[strikerPlayerIndex].run = this.state.batsman1Runs
+                                resultJson.teamSecondSquad[strikerPlayerIndex].bowl = this.state.batsman1Bowls
+                                if (run === 4) {
+                                    resultJson.teamSecondSquad[strikerPlayerIndex].four =
+                                        resultJson.teamSecondSquad[strikerPlayerIndex].four !== undefined ?
+                                            resultJson.teamSecondSquad[strikerPlayerIndex].four + 1 : 0
+                                }
+                                if (run === 6) {
+                                    resultJson.teamSecondSquad[strikerPlayerIndex].four =
+                                        resultJson.teamSecondSquad[strikerPlayerIndex].six !== undefined ?
+                                            resultJson.teamSecondSquad[strikerPlayerIndex].six + 1 : 0
+                                }
+
+                                console.log("resultJson.teamSecondSquad ", resultJson.teamSecondSquad[nonStrikerPlayerIndex])
+                            } else {
+                                resultJson.teamFirstSquad[strikerPlayerIndex].run = this.state.batsman1Runs
+                                resultJson.teamFirstSquad[strikerPlayerIndex].bowl = this.state.batsman1Bowls
+                                if (run === 4) {
+                                    resultJson.teamFirstSquad[strikerPlayerIndex].four =
+                                        resultJson.teamFirstSquad[strikerPlayerIndex].four !== undefined ?
+                                            resultJson.teamFirstSquad[strikerPlayerIndex].four + 1 : 0
+                                }
+                                if (run === 6) {
+                                    resultJson.teamFirstSquad[strikerPlayerIndex].four =
+                                        resultJson.teamFirstSquad[strikerPlayerIndex].six !== undefined ?
+                                            resultJson.teamFirstSquad[strikerPlayerIndex].six + 1 : 0
+                                }
+                                console.log("resultJson.teamFirstSquad ", resultJson.teamFirstSquad[strikerPlayerIndex])
+                            }
+                            console.log("updateRun...6")
+
+                            let nonStrikerPlayerIndex = resultJson.teamFirstSquad.findIndex(
+                                (item) => item.id === this.state.nonStrikerId)
+                            if (nonStrikerPlayerIndex === -1) {
+                                nonStrikerPlayerIndex = resultJson.teamSecondSquad.findIndex(
+                                    (item) => item.id === this.state.nonStrikerId)
+                                resultJson.teamSecondSquad[nonStrikerPlayerIndex].run = this.state.batsman2Runs
+                                resultJson.teamSecondSquad[strikerPlayerIndex].bowl = this.state.batsman2Bowls
+                                if (run === 4) {
+                                    resultJson.teamSecondSquad[strikerPlayerIndex].four =
+                                        resultJson.teamSecondSquad[strikerPlayerIndex].four !== undefined ?
+                                            resultJson.teamSecondSquad[strikerPlayerIndex].four + 1 : 0
+                                }
+                                if (run === 6) {
+                                    resultJson.teamSecondSquad[strikerPlayerIndex].four =
+                                        resultJson.teamSecondSquad[strikerPlayerIndex].six !== undefined ?
+                                            resultJson.teamSecondSquad[strikerPlayerIndex].six + 1 : 0
+                                }
+                                console.log("resultJson.teamSecondSquad ", resultJson.teamSecondSquad[nonStrikerPlayerIndex])
+                            } else {
+                                resultJson.teamFirstSquad[nonStrikerPlayerIndex].run = this.state.batsman2Runs
+                                resultJson.teamFirstSquad[nonStrikerPlayerIndex].bowl = this.state.batsman2Bowls
+                                if (run === 4) {
+                                    resultJson.teamFirstSquad[nonStrikerPlayerIndex].four =
+                                        resultJson.teamFirstSquad[nonStrikerPlayerIndex].four !== undefined ?
+                                            resultJson.teamFirstSquad[nonStrikerPlayerIndex].four + 1 : 0
+                                }
+                                if (run === 6) {
+                                    resultJson.teamFirstSquad[nonStrikerPlayerIndex].four =
+                                        resultJson.teamFirstSquad[nonStrikerPlayerIndex].six !== undefined ?
+                                            resultJson.teamFirstSquad[nonStrikerPlayerIndex].six + 1 : 0
+                                }
+                                console.log("resultJson.teamSecondSquad ", resultJson.teamFirstSquad[nonStrikerPlayerIndex])
+                            }
+
+                            if (this.state.bowlingTeamId === 1) {
+                                let bowlerIndex = resultJson.teamFirstSquad.findIndex(
+                                    (item) => item.id === this.state.bowlerId)
+                                let bowlerData = resultJson.teamFirstSquad.filter(
+                                    (item) => item.id === this.state.bowlerId)
+                                console.log("1st bowlerData", bowlerData)
+                                resultJson.teamFirstSquad[bowlerIndex].currentOverBowlRun = currentOverBowlRun
+                                resultJson.teamFirstSquad[bowlerIndex].currentOverBowl = currentOverBowl
+                                resultJson.teamFirstSquad[bowlerIndex].currentOverBowlerOver = currentOverBowlerOver
+                            } else {
+                                let bowlerIndex = resultJson.teamSecondSquad.findIndex(
+                                    (item) => item.id === this.state.bowlerId)
+                                let bowlerData = resultJson.teamSecondSquad.filter(
+                                    (item) => item.id === this.state.bowlerId)
+                                console.log("2nd bowlerData", bowlerData)
+                                resultJson.teamSecondSquad[bowlerIndex].currentOverBowlRun = currentOverBowlRun
+                                resultJson.teamSecondSquad[bowlerIndex].currentOverBowl = currentOverBowl
+                                resultJson.teamSecondSquad[bowlerIndex].currentOverBowlerOver = currentOverBowlerOver
+                            }
+
+                            if (resultJson.batFirstTeamId === resultJson.teamFirstId) {
+                                resultJson.teamFirstInning.score = this.state.runs
+                                resultJson.teamFirstInning.overs = overs
+                                resultJson.teamFirstInning.wickets = 0
+                            } else {
+                                resultJson.teamSecondInning.score = this.state.runs
+                                resultJson.teamSecondInning.overs = overs
+                                resultJson.teamSecondInning.wickets = 0
+                            }
+
+                            console.log("updateRun...7")
+                            if (overs >= resultJson.noOfOvers) {
+                                if (this.state.battingTeamId === resultJson.batFirstTeamId) {
+                                    alert("1st inning finish")
+                                } else {
+                                    alert("Match complete")
+                                }
+
+                            }
+                            database()
+                                .ref(path)
+                                .update({
+                                    currentOverRun: this.state.currentOverRun,
+                                    currentOverBowl: this.state.currentOverBowl,
+                                    teamFirstInning: resultJson.teamFirstInning,
+                                    teamSecondInning: resultJson.teamSecondInning,
+                                    teamFirstSquad: resultJson.teamFirstSquad,
+                                    teamSecondSquad: resultJson.teamSecondSquad
+                                })
+                                .then((result) => {
+                                    console.log('Data updated.', result)
+                                });
+                        })
+                })
+            }
         } else {
 
             let path = "/liveMatchList/" + this.state.firebaseID
@@ -496,6 +592,7 @@ class LiveMatchScoreUpdateScreen extends Component {
     handleExtraRun = (text) => {
         extraRun = text
     }
+
     viewForExtraRun() {
         return (
             <Modal
@@ -506,9 +603,9 @@ class LiveMatchScoreUpdateScreen extends Component {
                 }}
                 visible={this.state.isSelectExtraModel}>
                 <View style={{
-                    borderColor:colors.STATUS_BAR_COLOR,
-                    borderWidth:1,
-                    borderRadius:5,
+                    borderColor: colors.STATUS_BAR_COLOR,
+                    borderWidth: 1,
+                    borderRadius: 5,
                     backgroundColor: colors.WHITE,
                     alignSelf: 'center',
                     alignItems: 'center',
@@ -537,11 +634,11 @@ class LiveMatchScoreUpdateScreen extends Component {
                                 marginEnd: 20,
                                 marginStart: 20,
                                 height: 50,
-                                width:100,
+                                width: 100,
                                 borderColor: '#76B04315',
                                 borderWidth: 1,
                                 paddingStart: 10,
-                                textAlign:'center',
+                                textAlign: 'center',
                                 fontFamily: fontStyle.MontserratRegular,
                                 fontSize: 14,
                             }}
@@ -562,7 +659,7 @@ class LiveMatchScoreUpdateScreen extends Component {
                         marginBottom: 8,
                     }}>
                         <TouchableOpacity
-                            onPress={()=>{
+                            onPress={() => {
                                 this.setState({
                                     isSelectExtraModel: false
                                 })
@@ -591,10 +688,10 @@ class LiveMatchScoreUpdateScreen extends Component {
                         </TouchableOpacity>
 
                         <TouchableOpacity
-                            onPress={()=>{
+                            onPress={() => {
                                 this.setState({
                                     isSelectExtraModel: false
-                                },()=>{
+                                }, () => {
                                     this.updateRun(extraRun, 1, true, true, false)
                                 })
                             }}
