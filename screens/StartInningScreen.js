@@ -139,14 +139,17 @@ class StartInningScreen extends Component {
                         if (isStriker && item.battingIndex === 1) {
                             item.battingIndex = 0
                             item.strikerIndex = 0
+                            item.isStriker = null
                         } else if (!isStriker && item.battingIndex === 2) {
                             item.battingIndex = 0
                             item.strikerIndex = 0
+                            item.isStriker = null
                         }
                         item.bowlingIndex = 0
                     })
                     resultJson.teamFirstSquad[playerIndex].battingIndex = position
                     resultJson.teamFirstSquad[playerIndex].strikerIndex = position
+                    resultJson.teamFirstSquad[playerIndex].isStriker = position === 1
                 }else{
                     let playerIndex = resultJson.teamSecondSquad.findIndex(
                         (item) => item.id === list[selectedIndex].id)
@@ -154,14 +157,17 @@ class StartInningScreen extends Component {
                         if (isStriker && item.battingIndex === 1) {
                             item.battingIndex = 0
                             item.strikerIndex = 0
+                            item.isStriker = null
                         } else if (!isStriker && item.battingIndex === 2) {
                             item.battingIndex = 0
                             item.strikerIndex = 0
+                            item.isStriker = null
                         }
                         item.bowlingIndex = 0
                     })
                     resultJson.teamSecondSquad[playerIndex].battingIndex = position
                     resultJson.teamSecondSquad[playerIndex].strikerIndex = position
+                    resultJson.teamSecondSquad[playerIndex].isStriker = position === 1
                 }
                 database()
                     .ref(path)
