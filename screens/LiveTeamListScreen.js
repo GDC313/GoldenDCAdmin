@@ -84,7 +84,7 @@ class LiveTeamListScreen extends Component {
         return (
             <View style={{
                 flex: 1,
-                paddingTop:10,
+                paddingTop: 10,
                 backgroundColor: colors.PRIMARY_COLOR,
             }}>
                 <SafeAreaView/>
@@ -149,7 +149,7 @@ class LiveTeamListScreen extends Component {
                 <FlatList
                     contentContainerStyle={{
                         flexGrow: 1,
-                        backgroundColor:colors.WHITE,
+                        backgroundColor: colors.WHITE,
                         paddingTop: 10,
                         paddingBottom: 10,
                     }}
@@ -183,12 +183,16 @@ class LiveTeamListScreen extends Component {
                                     bowlingTeamSquad = this.state.value[item].teamSecondSquad
 
                                     let strikerItem = battingTeamSquad.filter((item) => item.battingIndex === 1)
-                                    strikerId = strikerItem[0].id
-                                    strikerName = strikerItem[0].name
+                                    if (strikerItem.length > 0) {
+                                        strikerId = strikerItem[0].id
+                                        strikerName = strikerItem[0].name
+                                    }
 
                                     let nonStrikerItem = battingTeamSquad.filter((item) => item.battingIndex === 2)
-                                    nonStrikerId = nonStrikerItem[0].id
-                                    nonStrikerName = nonStrikerItem[0].name
+                                    if (nonStrikerItem.length > 0) {
+                                        nonStrikerId = nonStrikerItem[0].id
+                                        nonStrikerName = nonStrikerItem[0].name
+                                    }
 
                                     let bowlerItem = bowlingTeamSquad.filter((item) => item.bowlingIndex === 1)
                                     let bowlerItemIndex = bowlingTeamSquad.findIndex((item) => item.bowlingIndex === 1)
@@ -216,12 +220,17 @@ class LiveTeamListScreen extends Component {
                                     bowlingTeamSquad = this.state.value[item].teamFirstSquad
 
                                     let strikerItem = battingTeamSquad.filter((item) => item.battingIndex === 1)
-                                    strikerId = strikerItem[0].id
-                                    strikerName = strikerItem[0].name
+
+                                    if (strikerItem.length > 0) {
+                                        strikerId = strikerItem[0].id
+                                        strikerName = strikerItem[0].name
+                                    }
 
                                     let nonStrikerItem = battingTeamSquad.filter((item) => item.battingIndex === 2)
-                                    nonStrikerId = nonStrikerItem[0].id
-                                    nonStrikerName = nonStrikerItem[0].name
+                                    if (nonStrikerItem.length > 0) {
+                                        nonStrikerId = nonStrikerItem[0].id
+                                        nonStrikerName = nonStrikerItem[0].name
+                                    }
 
                                     let bowlerItem = bowlingTeamSquad.filter((item) => item.bowlingIndex === 1)
                                     let bowlerItemIndex = bowlingTeamSquad.findIndex((item) => item.bowlingIndex === 1)
